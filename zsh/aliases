@@ -1,0 +1,55 @@
+# Handle the fact that this file will be used with multiple OSs
+platform=`uname`
+if [[ $platform == 'Linux' ]]; then
+  alias a='ls -lrth --color'
+elif [[ $platform == 'Darwin' ]]; then
+  alias a='ls -lrthG'
+fi
+
+# Heroku
+alias herkou='heroku'
+alias staging-console='heroku run console --remote staging'
+alias staging-tail='heroku logs --tail --remote staging'
+alias production-console='heroku run console --remote production'
+alias production-tail='heroku logs --tail --remote production'
+alias db-dump-production='heroku pgbackups:capture --remote production && curl -o latest.dump `heroku pgbackups:url --remote production`'
+alias db-copy-production-to-staging='heroku pgbackups:restore DATABASE `heroku pgbackups:url --remote production` --remote staging  --confirm `basename $PWD`-staging'
+alias db-backup-production='heroku pgbackups:capture --remote production'
+alias db-backups='heroku pgbackups --remote production'
+
+# git
+alias gad='git add .'
+alias gadu='git add -u .'
+alias gca='git commit -a'
+alias gcaa='git commit -a --amend -C HEAD'
+alias gcl='git clone'
+alias gcm="git commit -m"
+alias gco='git checkout'
+alias gd='git difftool'
+alias gdc='git difftool --cached'
+alias gdm='git difftool master'
+alias gg='git lg'
+alias gp='git push'
+alias gpf='git push -f'
+alias gpr='git pull --rebase'
+alias grc='git rebase --continue'
+
+# Some bower crap
+alias bower='noglob bower'
+
+# Apache logs
+alias a2alog='tail -f /var/log/apache2/access_log'
+alias a2elog='tail -f /var/log/apache2/error_log'
+
+# Postgres
+alias pgconfig='subl /usr/local/var/postgres/postgresql.conf'
+alias pgrestart="pgstop && pgstart"
+alias pgstart='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
+alias pgstop='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log stop'
+
+# Ctags
+alias ctags='`brew --prefix`/bin/ctags'
+alias wp-console='./wp-console.php'
+
+# File shortcuts
+alias dotfiles='subl ~/.dotfiles'

@@ -1,0 +1,5 @@
+=== Luke Barratt's dotfiles
+
+== Installation
+
+  git clone git://github.com/lbarratt/dotfiles ~/.dotfiles && cd ~/.dotfiles && rake install
