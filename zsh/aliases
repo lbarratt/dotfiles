@@ -6,17 +6,11 @@ elif [[ $platform == 'Darwin' ]]; then
   alias a='ls -lrthG'
 fi
 
-# Heroku
+alias l='gls -pla --color=auto --group-directories-first' # Requires brew install coreutils to enable directories
+
+# Heroku typos
 alias herkou='heroku'
-alias staging-console='heroku run console --remote staging'
-alias staging-tail='heroku logs --tail --remote staging'
-alias production-console='heroku run console --remote production'
-alias production-tail='heroku logs --tail --remote production'
-alias db-dump-production='heroku pgbackups:capture --remote production && curl -o latest.dump `heroku pgbackups:url --remote production`'
-alias db-dump-staging='heroku pgbackups:capture --remote staging && curl -o staging.dump `heroku pgbackups:url --remote staging`'
-alias db-copy-production-to-staging='heroku pgbackups:restore DATABASE `heroku pgbackups:url --remote production` --remote staging  --confirm `basename $PWD`-staging'
-alias db-backup-production='heroku pgbackups:capture --remote production'
-alias db-backups='heroku pgbackups --remote production'
+alias gerkou='heroku'
 
 # git
 alias gad='git add .'
@@ -35,22 +29,22 @@ alias gpf='git push -f'
 alias gpr='git pull --rebase'
 alias grc='git rebase --continue'
 
-# Some bower crap
+# Bower crap
 alias bower='noglob bower'
 
 # Apache logs
 alias a2alog='tail -f /var/log/apache2/access_log'
 alias a2elog='tail -f /var/log/apache2/error_log'
 
-# Postgres
-alias pgconfig='subl /usr/local/var/postgres/postgresql.conf'
-alias pgrestart="pgstop && pgstart"
-alias pgstart='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start'
-alias pgstop='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log stop'
-
 # Ctags
 alias ctags='`brew --prefix`/bin/ctags'
-alias wp-console='./wp-console.php'
 
 # File shortcuts
 alias dotfiles='subl ~/.dotfiles'
+
+# S to sublime (lol)
+alias s='subl'
+alias s.='subl .'
+
+# Ruby
+alias be='bundle exec'

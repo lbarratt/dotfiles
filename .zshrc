@@ -18,24 +18,32 @@ plugins=(git)
 # oh-my-zsh config
 source $ZSH/oh-my-zsh.sh
 
-# Bunch of path crap, needs cleaning:
+# PATH STUFF
 # Homebrew
-# RVM
 # NPM
-# PHP
-PATH=/usr/local/bin:$HOME/.rvm/bin:$HOME/.bin:/usr/local/share/npm/bin:/usr/local/php5/bin:$HOME/pear/bin:$PATH
+# Postgres.app
+PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:/Applications/Postgres93.app/Contents/MacOS/bin:/usr/local/share/npm/bin:$PATH
 
-# # This loads RVM
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+# rbenv - https://github.com/sstephenson/rbenv#homebrew-on-mac-os-x
+export RBENV_ROOT=/usr/local/var/rbenv
+eval "$(rbenv init -)"
 
 # Can't remember why this is here, but PG works
 export PGHOST=localhost
+export NODE_PATH=/usr/local/share/npm/lib/node_modules
+
+# AWS CLI TOOLS
+export JAVA_HOME="$(/usr/libexec/java_home)"
+export AWS_RDS_HOME="/usr/local/Cellar/rds-command-line-tools/1.14.001/libexec"
+
+# Source custom files after oh-my-zsh to override things.
+source $HOME/.dotfiles/zsh/aliases
 
 # Show contents of directory after cd-ing into it
 # (idea yanked from Ben Orenstein's dotfiles)
 chpwd() {
-  ls -lrthG
+  l
 }
 
-# Source custom files after oh-my-zsh to override things.
-source $HOME/.dotfiles/zsh/aliases
+# Disable autocorrect
+unsetopt correct_all
