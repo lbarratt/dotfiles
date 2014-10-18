@@ -48,3 +48,6 @@ alias s.='subl .'
 
 # Ruby
 alias be='bundle exec'
+
+# PHP crap
+alias composer='php /usr/bin/composer.phar'
