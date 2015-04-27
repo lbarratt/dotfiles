@@ -30,11 +30,6 @@ eval "$(rbenv init -)"
 
 # Can't remember why this is here, but PG works
 export PGHOST=localhost
-export NODE_PATH=/usr/local/share/npm/lib/node_modules
-
-# AWS CLI TOOLS
-export JAVA_HOME="$(/usr/libexec/java_home)"
-export AWS_RDS_HOME="/usr/local/Cellar/rds-command-line-tools/1.14.001/libexec"
 
 # Source custom files after oh-my-zsh to override things.
 source $HOME/.dotfiles/zsh/aliases
@@ -47,19 +42,6 @@ chpwd() {
 
 # Disable autocorrect
 unsetopt correct_all
-# added by travis gem
-[ -f /Users/luke/.travis/travis.sh ] && source /Users/luke/.travis/travis.sh
-
-# UE4 Perforce
-export P4CONFIG=p4config.txt
-
-# Python/Django
-
-# pip should only run if there is a virtualenv currently activated
-export PIP_REQUIRE_VIRTUALENV=false
-# cache pip-installed packages to avoid re-downloading
-export PIP_DOWNLOAD_CACHE=$HOME/.pip/cache
 
 # Docker
 $(boot2docker shellinit)
-
