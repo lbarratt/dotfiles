@@ -14,6 +14,11 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'danro/rename.vim'
 Plugin 'easymotion/vim-easymotion'
 Plugin 'crusoexia/vim-monokai'
+Plugin 'bling/vim-airline'
+Plugin 'bronson/vim-trailing-whitespace'
+Plugin 'tpope/vim-salve'
+Plugin 'tpope/vim-fireplace'
+Plugin 'tpope/vim-classpath'
 
 Bundle 'slim-template/vim-slim.git'
 Bundle 'vim-ruby/vim-ruby'
@@ -27,6 +32,7 @@ set nocompatible
 set expandtab
 set shiftwidth=2
 set softtabstop=2
+set laststatus=2
 
 syntax on
 filetype on
@@ -49,3 +55,8 @@ let g:ctrlp_reuse_window = 1
 " Theming
 
 colorscheme monokai
+
+" Airline
+
+let g:airline_detect_modified=1
+
