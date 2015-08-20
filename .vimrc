@@ -34,6 +34,11 @@ set shiftwidth=2
 set softtabstop=2
 set laststatus=2
 set backspace=indent,eol,start
+set colorcolumn=80
+set undofile
+set undodir=$HOME/.vim/undo
+set undolevels=10000
+set undoreload=100000
 
 syntax on
 filetype on
