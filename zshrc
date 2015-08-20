@@ -22,17 +22,17 @@ source $ZSH/oh-my-zsh.sh
 # Homebrew
 # NPM
 # Postgres.app
-PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:/Applications/Postgres93.app/Contents/MacOS/bin:/usr/local/share/npm/bin:$PATH
-
-# rbenv - https://github.com/sstephenson/rbenv#homebrew-on-mac-os-x
-export RBENV_ROOT=/usr/local/var/rbenv
-eval "$(rbenv init -)"
+PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:/Applications/Postgres.app/Contents/Versions/9.4/bin:/usr/local/share/npm/bin:$PATH
 
 # Can't remember why this is here, but PG works
 export PGHOST=localhost
 
 # Source custom files after oh-my-zsh to override things.
 source $HOME/.dotfiles/zsh/aliases
+
+# chruby
+source /usr/local/share/chruby/chruby.sh
+source /usr/local/share/chruby/auto.sh
 
 # Show contents of directory after cd-ing into it
 # (idea yanked from Ben Orenstein's dotfiles)
