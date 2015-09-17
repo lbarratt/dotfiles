@@ -43,5 +43,7 @@ chpwd() {
 # Disable autocorrect
 unsetopt correct_all
 
-# Docker
-$(boot2docker shellinit)
+# NVM
+export NVM_DIR=~/.nvm
+source $(brew --prefix nvm)/nvm.sh
+
