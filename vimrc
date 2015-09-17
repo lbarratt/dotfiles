@@ -19,6 +19,8 @@ Plugin 'bronson/vim-trailing-whitespace'
 Plugin 'tpope/vim-salve'
 Plugin 'tpope/vim-fireplace'
 Plugin 'tpope/vim-classpath'
+Plugin 'terryma/vim-multiple-cursors'
+Plugin 'mattn/emmet-vim'
 
 Bundle 'slim-template/vim-slim.git'
 Bundle 'vim-ruby/vim-ruby'
