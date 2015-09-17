@@ -1,6 +1,9 @@
 tap 'caskroom/cask'
-tap 'neovim/homebrew-neovim'
 
+brew 'vim'
 brew 'zsh'
+brew 'ack'
 brew 'coreutils'
-brew 'neovim', args: ['HEAD']
+brew 'chruby'
+brew 'nvm'
+brew 'ruby-install'
