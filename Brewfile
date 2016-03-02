@@ -8,3 +8,4 @@ brew 'nvm'
 brew 'ruby-install'
 
 cask 'launchrocket'
+cask 'gas-mask'
