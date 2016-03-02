@@ -7,20 +7,20 @@ call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
 Plugin 'tpope/vim-fugitive'
 Plugin 'L9'
-Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
 Plugin 'kien/ctrlp.vim'
 Plugin 'elixir-lang/vim-elixir'
 Plugin 'scrooloose/nerdtree'
-Plugin 'danro/rename.vim'
-Plugin 'easymotion/vim-easymotion'
 Plugin 'crusoexia/vim-monokai'
 Plugin 'bling/vim-airline'
+Bundle 'lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}
 Plugin 'bronson/vim-trailing-whitespace'
 Plugin 'tpope/vim-salve'
 Plugin 'tpope/vim-fireplace'
 Plugin 'tpope/vim-classpath'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'mattn/emmet-vim'
+Plugin 'tpope/vim-surround'
+Plugin 'scrooloose/nerdcommenter'
 
 Bundle 'slim-template/vim-slim.git'
 Bundle 'vim-ruby/vim-ruby'
@@ -41,10 +41,14 @@ set undofile
 set undodir=$HOME/.vim/undo
 set undolevels=10000
 set undoreload=100000
+set cursorline cursorcolumn
 
 syntax on
 filetype on
 filetype plugin indent on
+
+au WinLeave * set nocursorline nocursorcolumn
+au WinEnter * set cursorline cursorcolumn
 
 " Splits
 
@@ -68,4 +72,5 @@ colorscheme monokai
 " Airline
 
 let g:airline_detect_modified=1
+let g:airline_powerline_fonts=1
 
