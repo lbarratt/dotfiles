@@ -253,7 +253,6 @@ layers configuration. You are free to put any user code."
 
   (global-evil-mc-mode  1)
   (projectile-global-mode)
-  (setq projectile-completion-system 'grizzl)
 
   (with-eval-after-load 'neotree
     (define-key neotree-mode-map (kbd "o") 'neotree-enter)
