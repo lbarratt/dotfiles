@@ -5,25 +5,37 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 Plugin 'gmarik/Vundle.vim'
-Plugin 'tpope/vim-fugitive'
 Plugin 'L9'
-Plugin 'kien/ctrlp.vim'
-Plugin 'elixir-lang/vim-elixir'
-Plugin 'scrooloose/nerdtree'
-Plugin 'crusoexia/vim-monokai'
+
+" Theming
+
+Plugin 'danilo-augusto/vim-afterglow'
 Plugin 'bling/vim-airline'
 Bundle 'lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}
-Plugin 'bronson/vim-trailing-whitespace'
-Plugin 'tpope/vim-salve'
-Plugin 'tpope/vim-fireplace'
-Plugin 'tpope/vim-classpath'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'mattn/emmet-vim'
-Plugin 'tpope/vim-surround'
+
+" Navigation
+
+Plugin 'kien/ctrlp.vim'
+Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/nerdcommenter'
 
-Bundle 'slim-template/vim-slim.git'
-Bundle 'vim-ruby/vim-ruby'
+" Git
+
+Plugin 'tpope/vim-fugitive'
+
+" Languages
+
+Plugin 'elixir-lang/vim-elixir'
+Plugin 'pangloss/vim-javascript'
+Plugin 'mxw/vim-jsx'
+
+" Editor
+
+Plugin 'editorconfig/editorconfig-vim'
+Plugin 'easymotion/vim-easymotion'
+Plugin 'bronson/vim-trailing-whitespace'
+Plugin 'terryma/vim-multiple-cursors'
+Plugin 'tpope/vim-surround'
 
 call vundle#end()
 
@@ -41,14 +53,16 @@ set undofile
 set undodir=$HOME/.vim/undo
 set undolevels=10000
 set undoreload=100000
-set cursorline cursorcolumn
+set cursorline
+set lazyredraw
+set clipboard=unnamed
 
 syntax on
 filetype on
 filetype plugin indent on
 
 au WinLeave * set nocursorline nocursorcolumn
-au WinEnter * set cursorline cursorcolumn
+au WinEnter * set cursorline
 
 " Splits
 
@@ -67,7 +81,7 @@ let g:ctrlp_custom_ignore = 'node_modules\|jspm_packages\|DS_Store\|git'
 
 " Theming
 
-colorscheme monokai
+colorscheme afterglow
 
 " Airline
 
