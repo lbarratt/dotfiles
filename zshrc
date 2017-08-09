@@ -1,14 +1,6 @@
 # Path to your oh-my-zsh configuration.
 ZSH=$HOME/.dotfiles/oh-my-zsh
 
-# Functions
-
-# Show contents of directory after cd-ing into it
-# (idea yanked from Ben Orenstein's dotfiles)
-chpwd() {
-  l
-}
-
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
@@ -34,6 +26,14 @@ EDITOR=vim
 # NPM
 # Postgres.app
 PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:/usr/local/share/npm/bin:$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH
+
+# Functions
+
+# Show contents of directory after cd-ing into it
+# (idea yanked from Ben Orenstein's dotfiles)
+chpwd() {
+  l
+}
 
 # Source custom files after oh-my-zsh to override things.
 source $HOME/.dotfiles/zsh/aliases
