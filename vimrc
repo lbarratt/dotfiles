@@ -17,7 +17,6 @@ Bundle 'lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}
 
 Plugin 'kien/ctrlp.vim'
 Plugin 'scrooloose/nerdtree'
-Plugin 'scrooloose/nerdcommenter'
 
 " Git
 
@@ -36,6 +35,7 @@ Plugin 'easymotion/vim-easymotion'
 Plugin 'bronson/vim-trailing-whitespace'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'tpope/vim-surround'
+Plugin 'scrooloose/nerdcommenter'
 
 call vundle#end()
 
@@ -73,6 +73,14 @@ nnoremap <C-H> <C-W><C-H>
 
 set splitbelow
 set splitright
+
+" NERD
+
+map <Tab> :NERDTreeToggle<CR>
+vmap <silent><C-_> <Plug>NERDCommenterToggle
+
+let g:NERDTrimTrailingWhitespace = 1
+let g:NERDDefaultAlign = 'left'
 
 " CtrlP
 
