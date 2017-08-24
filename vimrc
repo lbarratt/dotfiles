@@ -87,6 +87,10 @@ let g:NERDDefaultAlign = 'left'
 let g:ctrlp_reuse_window = 1
 let g:ctrlp_custom_ignore = 'node_modules\|jspm_packages\|DS_Store\|git'
 
+" Multiple Cursors
+
+let g:multi_cursor_exit_from_insert_mode = 0
+
 " Theming
 
 colorscheme afterglow
