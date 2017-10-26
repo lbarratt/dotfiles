@@ -10,17 +10,17 @@ Plugin 'L9'
 " Theming
 
 Plugin 'danilo-augusto/vim-afterglow'
-Plugin 'bling/vim-airline'
-Bundle 'lokaltog/powerline', {'rtp': 'powerline/bindings/vim/'}
+Plugin 'itchyny/lightline.vim'
 
 " Navigation
 
-Plugin 'kien/ctrlp.vim'
 Plugin 'scrooloose/nerdtree'
+Plugin 'junegunn/fzf.vim'
 
 " Git
 
 Plugin 'tpope/vim-fugitive'
+Plugin 'airblade/vim-gitgutter'
 
 " Languages
 
@@ -36,6 +36,7 @@ Plugin 'bronson/vim-trailing-whitespace'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'tpope/vim-surround'
 Plugin 'scrooloose/nerdcommenter'
+Plugin 'gabesoft/vim-ags'
 
 call vundle#end()
 
@@ -74,6 +75,8 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
+autocmd VimResized * wincmd =
+
 " NERD
 
 map <Tab> :NERDTreeToggle<CR>
@@ -82,10 +85,10 @@ vmap <silent><C-_> <Plug>NERDCommenterToggle
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDDefaultAlign = 'left'
 
-" CtrlP
+" FZF
 
-let g:ctrlp_reuse_window = 1
-let g:ctrlp_custom_ignore = 'node_modules\|jspm_packages\|DS_Store\|git'
+set rtp+=/usr/local/opt/fzf
+nnoremap <expr> <C-p> fugitive#is_git_dir(fugitive#extract_git_dir(getcwd())) ? ':GFiles <CR>' : ':Files <CR>'
 
 " Multiple Cursors
 
@@ -94,9 +97,4 @@ let g:multi_cursor_exit_from_insert_mode = 0
 " Theming
 
 colorscheme afterglow
-
-" Airline
-
-let g:airline_detect_modified=1
-let g:airline_powerline_fonts=1
 

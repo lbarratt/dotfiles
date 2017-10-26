@@ -1,23 +1,24 @@
-require 'rake'
+require "rake"
 
-desc "install the dot files into user's home directory"
+desc "Install dotfiles into the home directory"
 task :install do
   replace_all = false
-  Dir['*'].each do |file|
-    next if %w[Rakefile README.rdoc LICENSE].include? file
-    
-    if File.exist?(File.join(ENV['HOME'], ".#{file}"))
+
+  Dir["*"].each do |file|
+    next if %w[Brewfile Rakefile README.md LICENSE].include? file
+
+    if File.exist?(File.join(ENV["HOME"], ".#{file}"))
       if replace_all
         replace_file(file)
       else
         print "overwrite ~/.#{file}? [ynaq] "
         case $stdin.gets.chomp
-        when 'a'
+        when "a"
           replace_all = true
           replace_file(file)
-        when 'y'
+        when "y"
           replace_file(file)
-        when 'q'
+        when "q"
           exit
         else
           puts "skipping ~/.#{file}"
@@ -28,7 +29,10 @@ task :install do
     end
   end
 
-  system %Q{mkdir ~/.tmp}
+  system %Q{mkdir -p ~/.tmp}
+  system %Q{mkdir -p ~/.config/nvim}
+
+  link_file "config/nvim/init.vim"
 end
 
 def replace_file(file)
