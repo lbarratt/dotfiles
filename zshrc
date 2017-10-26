@@ -1,81 +1,88 @@
-# Path to your oh-my-zsh configuration.
-ZSH=$HOME/.dotfiles/oh-my-zsh
+## ZSH Options
 
-# Set name of the theme to load.
-# Look in ~/.oh-my-zsh/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
-ZSH_THEME="robbyrussell"
+unsetopt correct_all
 
-alias zshconfig="vim ~/.zshrc"
-alias ohmyzsh="vim ~/.oh-my-zsh"
+## Environment
 
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(git)
+# $PATH Additions:
+# - Homebrew
+# - NPM
+PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH
 
-# oh-my-zsh config
-source $ZSH/oh-my-zsh.sh
+## Antigen ZSH Plugin Manager
 
-# editor
-EDITOR=vim
+source /usr/local/share/antigen/antigen.zsh
 
-# PATH STUFF
-# Homebrew
-# NPM
-# Postgres.app
-PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:/usr/local/share/npm/bin:$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH
+antigen use oh-my-zsh
 
-# Functions
+antigen bundle git
+antigen bundle heroku
+antigen bundle zsh-users/zsh-syntax-highlighting
+
+antigen theme candy
+
+antigen apply
+
+## Text Editor
+EDITOR=nvim
+
+## Aliases
+source $HOME/.dotfiles/zsh/aliases
+
+## Functions
 
 # Show contents of directory after cd-ing into it
-# (idea yanked from Ben Orenstein's dotfiles)
 chpwd() {
   l
 }
 
-# Source custom files after oh-my-zsh to override things.
-source $HOME/.dotfiles/zsh/aliases
+## Tooling
+
+# GPG
+
+if test -f ~/.gnupg/.gpg-agent-info -a -n "$(pgrep gpg-agent)"; then
+  source ~/.gnupg/.gpg-agent-info
+  export GPG_AGENT_INFO
+else
+  eval $(gpg-agent --daemon --write-env-file ~/.gnupg/.gpg-agent-info)
+fi
+
+## Programming Language Speicic
 
 # chruby
 source /usr/local/share/chruby/chruby.sh
 source /usr/local/share/chruby/auto.sh
 
-# Disable autocorrect
-unsetopt correct_all
-
-# NVM
+# NVM - Node Version Manager
 export NVM_DIR=~/.nvm
 source $(brew --prefix nvm)/nvm.sh
 
 autoload -U add-zsh-hook
 
 load-nvmrc() {
-    if [[ -f .nvmrc && -r .nvmrc ]]; then
-        nvm use
-    fi
+  if [[ -f .nvmrc && -r .nvmrc ]]; then
+    nvm use
+  fi
 }
 
 add-zsh-hook chpwd load-nvmrc
 
-# GPG
-
-if test -f ~/.gnupg/.gpg-agent-info -a -n "$(pgrep gpg-agent)"; then
-   source ~/.gnupg/.gpg-agent-info
-   export GPG_AGENT_INFO
-else
-   eval $(gpg-agent --daemon --write-env-file ~/.gnupg/.gpg-agent-info)
-fi
-
-# JVM
+# Java / JVM
 
 export JENV_ROOT=/usr/local/opt/jenv
 export PATH="$HOME/.jenv/bin:$PATH"
 eval "$(jenv init -)"
 
-# Mongo
+# Cargo/rust
+
+source $HOME/.cargo/env
+
+## Apps
+
+# MongoDB
+
 export PATH=$HOME/.mongodb/bin:$PATH
 
-# Cargo/rust
-source $HOME/.cargo/env
+# FZF
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
