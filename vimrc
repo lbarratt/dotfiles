@@ -24,9 +24,7 @@ Plugin 'airblade/vim-gitgutter'
 
 " Languages
 
-Plugin 'elixir-lang/vim-elixir'
-Plugin 'pangloss/vim-javascript'
-Plugin 'mxw/vim-jsx'
+Plugin 'sheerun/vim-polyglot'
 
 " Editor
 
@@ -35,7 +33,7 @@ Plugin 'easymotion/vim-easymotion'
 Plugin 'bronson/vim-trailing-whitespace'
 Plugin 'terryma/vim-multiple-cursors'
 Plugin 'tpope/vim-surround'
-Plugin 'scrooloose/nerdcommenter'
+Plugin 'tomtom/tcomment_vim'
 Plugin 'gabesoft/vim-ags'
 
 call vundle#end()
@@ -59,6 +57,7 @@ set lazyredraw
 set clipboard=unnamed
 
 syntax on
+syntax sync minlines=256
 filetype on
 filetype plugin indent on
 
@@ -80,7 +79,6 @@ autocmd VimResized * wincmd =
 " NERD
 
 map <Tab> :NERDTreeToggle<CR>
-vmap <silent><C-_> <Plug>NERDCommenterToggle
 
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDDefaultAlign = 'left'
