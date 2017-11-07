@@ -5,7 +5,7 @@ task :install do
   replace_all = false
 
   Dir["*"].each do |file|
-    next if %w[Brewfile Rakefile README.md LICENSE].include? file
+    next if %w[Brewfile Rakefile README.md LICENSE config].include? file
 
     if File.exist?(File.join(ENV["HOME"], ".#{file}"))
       if replace_all
@@ -32,7 +32,8 @@ task :install do
   system %Q{mkdir -p ~/.tmp}
   system %Q{mkdir -p ~/.config/nvim}
 
-  link_file "config/nvim/init.vim"
+  replace_file "config/nvim/init.vim"
+  replace_file "config/alacritty/alacritty.yml"
 end
 
 def replace_file(file)
