@@ -64,6 +64,10 @@ filetype plugin indent on
 au WinLeave * set nocursorline nocursorcolumn
 au WinEnter * set cursorline
 
+" Global
+
+nnoremap <esc> :nohl<CR><esc>
+
 " Splits
 
 nnoremap <C-J> <C-W><C-J>
