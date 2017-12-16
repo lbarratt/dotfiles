@@ -33,7 +33,7 @@ source $HOME/.dotfiles/zsh/aliases
 
 # Show contents of directory after cd-ing into it
 chpwd() {
-  l
+  ls -la
 }
 
 ## Tooling
@@ -44,8 +44,10 @@ if test -f ~/.gnupg/.gpg-agent-info -a -n "$(pgrep gpg-agent)"; then
   source ~/.gnupg/.gpg-agent-info
   export GPG_AGENT_INFO
 else
-  eval $(gpg-agent --daemon --write-env-file ~/.gnupg/.gpg-agent-info)
+  eval $(gpg-agent --daemon)
 fi
+
+export GPG_TTY=$(tty)
 
 ## Programming Language Speicic
 
@@ -66,12 +68,6 @@ load-nvmrc() {
 }
 
 add-zsh-hook chpwd load-nvmrc
-
-# Java / JVM
-
-export JENV_ROOT=/usr/local/opt/jenv
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"
 
 # Cargo/rust
 
