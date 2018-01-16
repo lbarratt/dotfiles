@@ -35,6 +35,7 @@ Plugin 'terryma/vim-multiple-cursors'
 Plugin 'tpope/vim-surround'
 Plugin 'tomtom/tcomment_vim'
 Plugin 'gabesoft/vim-ags'
+Plugin 'yuttie/comfortable-motion.vim'
 
 call vundle#end()
 
