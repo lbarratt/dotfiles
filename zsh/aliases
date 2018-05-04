@@ -53,5 +53,18 @@ alias s.='subl .'
 # Ruby
 alias be='bundle exec'
 
-# PHP crap
-alias composer='php /usr/bin/composer.phar'
+# Vault Helpers
+function vlt {
+     list=$(vault list secret/$1 2<&1)
+
+     if [ $? -ne 0 ]; then
+
+         if [ -n "$2" ]; then
+             vault read -field=$2 secret/$1
+         else
+             vault read secret/$1
+         fi
+     else
+         echo "$list"
+     fi
+ }
