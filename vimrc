@@ -25,6 +25,7 @@ Plugin 'airblade/vim-gitgutter'
 " Languages
 
 Plugin 'sheerun/vim-polyglot'
+Plugin 'lvht/phpcd.vim', { 'for': 'php', 'do': 'composer install' }
 
 " Editor
 
@@ -36,6 +37,8 @@ Plugin 'tpope/vim-surround'
 Plugin 'tomtom/tcomment_vim'
 Plugin 'gabesoft/vim-ags'
 Plugin 'yuttie/comfortable-motion.vim'
+Plugin 'tpope/vim-commentary'
+Plugin 'Raimondi/delimitMate'
 
 call vundle#end()
 
@@ -56,6 +59,11 @@ set undoreload=100000
 set cursorline
 set lazyredraw
 set clipboard=unnamed
+set smartcase
+set ignorecase
+set showmatch
+set nostartofline
+set synmaxcol=300
 
 syntax on
 syntax sync minlines=256
@@ -66,6 +74,8 @@ au WinLeave * set nocursorline nocursorcolumn
 au WinEnter * set cursorline
 
 " Global
+
+let g:mapleader = '\'
 
 nnoremap <esc> :nohl<CR><esc>
 
@@ -87,6 +97,7 @@ map <Tab> :NERDTreeToggle<CR>
 
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDDefaultAlign = 'left'
+let g:NERDTreeIgnore=['\.o$', '\~$', '\node_modules$']
 
 " FZF
 
@@ -96,6 +107,10 @@ nnoremap <expr> <C-p> fugitive#is_git_dir(fugitive#extract_git_dir(getcwd())) ? 
 " Multiple Cursors
 
 let g:multi_cursor_exit_from_insert_mode = 0
+
+" DelimitMate
+
+let g:delimitMate_expand_cr = 1
 
 " Theming
 
