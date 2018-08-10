@@ -25,7 +25,6 @@ Plugin 'airblade/vim-gitgutter'
 " Languages
 
 Plugin 'sheerun/vim-polyglot'
-Plugin 'lvht/phpcd.vim', { 'for': 'php', 'do': 'composer install' }
 
 " Editor
 
