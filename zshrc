@@ -51,9 +51,8 @@ export GPG_TTY=$(tty)
 
 ## Programming Language Speicic
 
-# chruby
-source /usr/local/share/chruby/chruby.sh
-source /usr/local/share/chruby/auto.sh
+# Ruby
+eval "$(rbenv init -)"
 
 # NVM - Node Version Manager
 export NVM_DIR=~/.nvm
