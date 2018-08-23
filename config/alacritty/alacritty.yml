@@ -384,4 +384,5 @@ key_bindings:
   - { key: Down,     mods: Alt,     chars: "\x1b[1;5B"                   }
   - { key: Left,     mods: Alt,     chars: "\x1bb"                       }
   - { key: Right,    mods: Alt,     chars: "\x1bf"                       }
+  - { key: Key3,     mods: Alt,     chars: "\x23"                        }
 
