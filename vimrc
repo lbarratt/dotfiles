@@ -1,45 +1,44 @@
-" Vundle
+" Vim Plug
 
-set rtp+=~/.vim/bundle/Vundle.vim
-
-call vundle#begin()
-
-Plugin 'gmarik/Vundle.vim'
-Plugin 'L9'
+call plug#begin('~/.local/share/nvim/plugged')
 
 " Theming
 
-Plugin 'danilo-augusto/vim-afterglow'
-Plugin 'itchyny/lightline.vim'
+Plug 'danilo-augusto/vim-afterglow'
+Plug 'itchyny/lightline.vim'
 
 " Navigation
 
-Plugin 'scrooloose/nerdtree'
-Plugin 'junegunn/fzf.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'junegunn/fzf.vim'
 
 " Git
 
-Plugin 'tpope/vim-fugitive'
-Plugin 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
 
 " Languages
 
-Plugin 'sheerun/vim-polyglot'
+Plug 'sheerun/vim-polyglot'
 
 " Editor
 
-Plugin 'editorconfig/editorconfig-vim'
-Plugin 'easymotion/vim-easymotion'
-Plugin 'bronson/vim-trailing-whitespace'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'tpope/vim-surround'
-Plugin 'tomtom/tcomment_vim'
-Plugin 'gabesoft/vim-ags'
-Plugin 'yuttie/comfortable-motion.vim'
-Plugin 'tpope/vim-commentary'
-Plugin 'Raimondi/delimitMate'
+Plug 'editorconfig/editorconfig-vim'
+Plug 'easymotion/vim-easymotion'
+Plug 'bronson/vim-trailing-whitespace'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'tpope/vim-surround'
+Plug 'tomtom/tcomment_vim'
+Plug 'gabesoft/vim-ags'
+Plug 'yuttie/comfortable-motion.vim'
+Plug 'tpope/vim-commentary'
+Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 
-call vundle#end()
+" COC Languages
+
+Plug 'neoclide/coc-solargraph'
+
+call plug#end()
 
 " Settings
 
@@ -55,7 +54,6 @@ set undofile
 set undodir=$HOME/.vim/undo
 set undolevels=10000
 set undoreload=100000
-set cursorline
 set lazyredraw
 set clipboard=unnamed
 set smartcase
@@ -63,6 +61,13 @@ set ignorecase
 set showmatch
 set nostartofline
 set synmaxcol=300
+set hidden
+set nobackup
+set nowritebackup
+set cmdheight=2
+set updatetime=750
+set shortmess+=c
+set signcolumn=yes
 
 syntax on
 syntax sync minlines=256
@@ -70,7 +75,11 @@ filetype on
 filetype plugin indent on
 
 au WinLeave * set nocursorline nocursorcolumn
-au WinEnter * set cursorline
+
+" Send d to blackhole register
+
+nnoremap d "_d
+vnoremap d "_d
 
 " Global
 
@@ -101,17 +110,75 @@ let g:NERDTreeIgnore=['\.o$', '\~$', '\node_modules$']
 " FZF
 
 set rtp+=/usr/local/opt/fzf
-nnoremap <expr> <C-p> fugitive#is_git_dir(fugitive#extract_git_dir(getcwd())) ? ':GFiles <CR>' : ':Files <CR>'
+nnoremap <expr> <C-p> ':Files <CR>'
 
 " Multiple Cursors
 
 let g:multi_cursor_exit_from_insert_mode = 0
 
-" DelimitMate
-
-let g:delimitMate_expand_cr = 1
-
 " Theming
 
 colorscheme afterglow
+
+" Polyglot
+
+let g:ruby_path = system('echo $HOME/.rbenv/shims')
+
+" COC
+
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> for trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
+
+" Use <cr> for confirm completion, `<C-g>u` means break undo chain at current position.
+" Coc only does snippet and additional edit on confirm.
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+
+" Use `[c` and `]c` for navigate diagnostics
+nmap <silent> [c <Plug>(coc-diagnostic-prev)
+nmap <silent> ]c <Plug>(coc-diagnostic-next)
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Remap for format selected region
+vmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+" Use `:Format` for format current buffer
+command! -nargs=0 Format :call CocAction('format')
+
+" Use `:Fold` for fold current buffer
+command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+
+let g:lightline = {
+\ 'colorscheme': 'wombat',
+\ 'active': {
+\   'left': [ [ 'mode', 'paste' ],
+\             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+\ },
+\ 'component_function': {
+\   'cocstatus': 'coc#status'
+\ },
+\ }
 
