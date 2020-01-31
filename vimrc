@@ -30,7 +30,6 @@ Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-surround'
 Plug 'tomtom/tcomment_vim'
 Plug 'gabesoft/vim-ags'
-Plug 'yuttie/comfortable-motion.vim'
 Plug 'tpope/vim-commentary'
 Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 
