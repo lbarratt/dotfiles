@@ -17,3 +17,4 @@ brew 'nvm'
 brew 'ruby-install'
 
 cask 'keybase'
+cask 'google-cloud-sdk'

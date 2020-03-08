@@ -24,14 +24,17 @@ antigen theme candy
 antigen apply
 
 ## Text Editor
+
 EDITOR=nvim
 
 ## Aliases
+
 source $HOME/.dotfiles/zsh/aliases
 
 ## Functions
 
 # Show contents of directory after cd-ing into it
+
 chpwd() {
   ls -la
 }
@@ -81,3 +84,13 @@ export PATH=$HOME/.mongodb/bin:$PATH
 # FZF
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Python
+
+alias python=/usr/local/bin/python3
+
+# Google Cloud
+
+source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc
+source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc
+
