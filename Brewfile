@@ -2,7 +2,7 @@ tap 'caskroom/cask'
 
 brew 'tmux'
 brew 'zsh'
-brew 'antigen'
+brew 'getantibody/tap/antibody'
 brew 'coreutils'
 brew 'gpg'
 brew 'cmake'

@@ -9,19 +9,20 @@ unsetopt correct_all
 # - NPM
 PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH
 
-## Antigen ZSH Plugin Manager
+## Antibody ZSH Plugin Manager
 
-source /usr/local/share/antigen/antigen.zsh
+autoload -Uz compinit
 
-antigen use oh-my-zsh
+for dump in ~/.zcompdump(N.mh+24); do
+  compinit
+done
 
-antigen bundle git
-antigen bundle heroku
-antigen bundle zsh-users/zsh-syntax-highlighting
+compinit -C
 
-antigen theme candy
+source <(antibody init)
 
-antigen apply
+antibody bundle < ~/.zsh_plugins
+
 
 ## Text Editor
 
@@ -40,19 +41,6 @@ chpwd() {
 }
 
 ## Tooling
-
-# GPG
-
-if test -f ~/.gnupg/.gpg-agent-info -a -n "$(pgrep gpg-agent)"; then
-  source ~/.gnupg/.gpg-agent-info
-  export GPG_AGENT_INFO
-else
-  eval $(gpg-agent --daemon)
-fi
-
-export GPG_TTY=$(tty)
-
-## Programming Language Speicic
 
 # Ruby
 eval "$(rbenv init -)"
