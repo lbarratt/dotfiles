@@ -26,7 +26,7 @@ antibody bundle < ~/.zsh_plugins
 
 ## Text Editor
 
-EDITOR=nvim
+export EDITOR=nvim
 
 ## Aliases
 

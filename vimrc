@@ -29,7 +29,7 @@ Plug 'bronson/vim-trailing-whitespace'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'tpope/vim-surround'
 Plug 'tomtom/tcomment_vim'
-Plug 'gabesoft/vim-ags'
+Plug 'jremmen/vim-ripgrep'
 Plug 'tpope/vim-commentary'
 Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install()}}
 
@@ -110,6 +110,10 @@ let g:NERDTreeIgnore=['\.o$', '\~$', '\node_modules$']
 
 set rtp+=/usr/local/opt/fzf
 nnoremap <expr> <C-p> ':Files <CR>'
+
+" Rg
+
+let g:rg_command = 'rg --vimgrep -C 3'
 
 " Multiple Cursors
 
