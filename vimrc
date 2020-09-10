@@ -26,7 +26,7 @@ Plug 'sheerun/vim-polyglot'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'easymotion/vim-easymotion'
 Plug 'bronson/vim-trailing-whitespace'
-Plug 'terryma/vim-multiple-cursors'
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'tpope/vim-surround'
 Plug 'tomtom/tcomment_vim'
 Plug 'jremmen/vim-ripgrep'
@@ -110,6 +110,7 @@ let g:NERDTreeIgnore=['\.o$', '\~$', '\node_modules$']
 
 set rtp+=/usr/local/opt/fzf
 nnoremap <expr> <C-p> ':Files <CR>'
+let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow'
 
 " Rg
 
