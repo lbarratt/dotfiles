@@ -109,6 +109,7 @@ let g:NERDTreeIgnore=['\.o$', '\~$', '\node_modules$']
 " FZF
 
 set rtp+=/usr/local/opt/fzf
+set rtp+=~/.fzf
 nnoremap <expr> <C-p> ':Files <CR>'
 let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow'
 

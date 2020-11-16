@@ -42,12 +42,9 @@ chpwd() {
 
 ## Tooling
 
-# Ruby
-eval "$(rbenv init -)"
-
 # NVM - Node Version Manager
 export NVM_DIR=~/.nvm
-source $(brew --prefix nvm)/nvm.sh
+source $NVM_DIR/nvm.sh
 
 autoload -U add-zsh-hook
 
@@ -76,9 +73,4 @@ export PATH=$HOME/.mongodb/bin:$PATH
 # Python
 
 alias python=/usr/local/bin/python3
-
-# Google Cloud
-
-source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc
-source /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc
 
