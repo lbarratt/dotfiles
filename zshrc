@@ -72,5 +72,4 @@ export PATH=$HOME/.mongodb/bin:$PATH
 
 # Python
 
-alias python=/usr/local/bin/python3
-
+export PATH=$PATH:$HOME/.local/bin

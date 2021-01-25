@@ -54,7 +54,7 @@ set undodir=$HOME/.vim/undo
 set undolevels=10000
 set undoreload=100000
 set lazyredraw
-set clipboard=unnamed
+set clipboard=unnamedplus
 set smartcase
 set ignorecase
 set showmatch
