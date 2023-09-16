@@ -111,7 +111,12 @@ require("lazy").setup({
     opt = true,
     config = function()
       require("lualine").setup({
-        options = { theme = "catppuccin" },
+        options = {
+          theme = "catppuccin",
+        },
+        extensions = {
+          "nvim-tree",
+        },
         sections = {
           lualine_b = {
             {
