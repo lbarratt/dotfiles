@@ -32,7 +32,7 @@ task :install do
   system %Q{mkdir -p ~/.tmp}
   system %Q{mkdir -p ~/.config/nvim}
 
-  replace_file "config/nvim/init.vim"
+  replace_file "config/nvim/init.lua"
   replace_file "config/alacritty/alacritty.yml"
 end
 

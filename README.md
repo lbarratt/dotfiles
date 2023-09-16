@@ -15,6 +15,18 @@ Switch shells to ZSH
     echo "/usr/local/bin/zsh" | sudo tee -a /etc/shells
     chsh -s /usr/local/bin/zsh
 
-Update Oh-My-Zsh and symlink the dotfiles
+Symlink the dotfiles
 
     git submodule init && git submodule update --recursive && rake install
+
+Install TPM
+
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+Install Alacritty theme
+
+    git clone https://github.com/catppuccin/alacritty.git ~/.config/alacritty/catppuccin
+
+Install virtualenv
+
+    pip3 install virtualenv

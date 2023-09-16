@@ -9,6 +9,7 @@ brew 'cmake'
 brew 'ag'
 brew 'fzf'
 brew 'reattach-to-user-namespace'
+brew 'python3'
 
 brew 'neovim'
 
