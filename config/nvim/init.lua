@@ -30,11 +30,8 @@ vim.opt.signcolumn = "yes"
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.termguicolors = true
-
--- vim.opt.nostartofline = true
--- vim.opt.nobackup = true
--- vim.opt.nowritebackup = true
--- vim.opt.shortmess = "c"
+vim.opt.backup = false
+vim.opt.writebackup = false
 
 -- Split Navigation
 vim.api.nvim_set_keymap("n", "<C-H>", "<C-W><C-H>", {})
