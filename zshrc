@@ -4,10 +4,11 @@ unsetopt correct_all
 
 ## Environment
 
-# $PATH Additions:
-# - Homebrew
-# - NPM
-PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH
+PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin
+
+# Insatiable watchman
+
+ulimit -n 12288
 
 ## Antibody ZSH Plugin Manager
 
@@ -56,15 +57,13 @@ load-nvmrc() {
 
 add-zsh-hook chpwd load-nvmrc
 
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+nvm use default
+
 # Cargo/rust
 
 source $HOME/.cargo/env
-
-## Apps
-
-# MongoDB
-
-export PATH=$HOME/.mongodb/bin:$PATH
 
 # FZF
 
@@ -73,3 +72,20 @@ export PATH=$HOME/.mongodb/bin:$PATH
 # Python
 
 export PATH=$PATH:$HOME/.local/bin
+
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
+
+# Android Studio
+
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+# bun
+
+[ -s "/Users/luke/.bun/_bun" ] && source "/Users/luke/.bun/_bun"
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
