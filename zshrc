@@ -4,7 +4,7 @@ unsetopt correct_all
 
 ## Environment
 
-PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin
+PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:$PATH
 
 # Insatiable watchman
 
