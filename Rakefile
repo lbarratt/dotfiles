@@ -33,7 +33,6 @@ task :install do
   system %Q{mkdir -p ~/.config/nvim}
 
   replace_file "config/nvim/init.lua"
-  replace_file "config/nvim/.stylua.toml"
   replace_file "config/alacritty/alacritty.yml"
 end
 
