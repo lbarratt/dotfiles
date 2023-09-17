@@ -32,6 +32,7 @@ vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.backup = false
 vim.opt.writebackup = false
+vim.opt.swapfile = false
 
 -- Split Navigation
 vim.api.nvim_set_keymap("n", "<C-H>", "<C-W><C-H>", {})
