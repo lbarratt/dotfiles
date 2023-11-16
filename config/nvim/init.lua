@@ -1,3 +1,5 @@
+local keymap = vim.keymap
+
 -- Global Variables
 
 vim.g.mapleader = "\\"
@@ -25,26 +27,36 @@ vim.opt.showmatch = true
 vim.opt.cursorline = true
 vim.opt.hidden = true
 vim.opt.cmdheight = 2
-vim.opt.updatetime = 750
 vim.opt.signcolumn = "yes"
 vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.backup = false
 vim.opt.writebackup = false
-vim.opt.swapfile = false
-
--- Split Navigation
-vim.api.nvim_set_keymap("n", "<C-H>", "<C-W><C-H>", {})
-vim.api.nvim_set_keymap("n", "<C-J>", "<C-W><C-J>", {})
-vim.api.nvim_set_keymap("n", "<C-K>", "<C-W><C-K>", {})
-vim.api.nvim_set_keymap("n", "<C-L>", "<C-W><C-L>", {})
-
--- Remove highlight on ESC
-vim.api.nvim_set_keymap("n", "<esc>", ":nohl<CR><esc>", { silent = true, noremap = true })
+vim.opt.undodir = vim.fn.expand("~/.vim/undodir")
 
 -- Send "d" to a blackhole register
-vim.api.nvim_set_keymap("n", "d", '"_d', { silent = true, noremap = true })
+keymap.set("n", "d", '"_d', { silent = true, noremap = true })
+keymap.set("v", "d", '"_d', { silent = true, noremap = true })
+
+-- Split Navigation
+keymap.set("n", "<C-H>", "<C-W><C-H>")
+keymap.set("n", "<C-J>", "<C-W><C-J>")
+keymap.set("n", "<C-K>", "<C-W><C-K>")
+keymap.set("n", "<C-L>", "<C-W><C-L>")
+
+-- Remove highlight on ESC
+keymap.set("n", "<esc>", ":nohl<CR><esc>", { silent = true, noremap = true })
+
+-- Keep cursor in the middle for specific motions
+keymap.set("n", "<C-u>", "<C-u>zz")
+keymap.set("n", "<C-d>", "<C-d>zz")
+keymap.set("n", "n", "nzz")
+keymap.set("n", "N", "Nzz")
+
+-- Don't leave visual mode after indenting
+keymap.set("v", ">", ">gv^")
+keymap.set("v", "<", "<gv^")
 
 -- Init lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -140,14 +152,72 @@ require("lazy").setup({
       "nvim-lua/plenary.nvim",
     },
     config = function()
+      local telescope = require("telescope")
+      local actions = require("telescope.actions")
       local builtin = require("telescope.builtin")
 
-      vim.keymap.set("n", "<C-p>", builtin.find_files, {})
-      vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
-      vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
-      vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
-      vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
+      require("telescope").setup({
+        defaults = {
+          cache_picker = false,
+          mappings = {
+            i = {
+              ["<C-Down>"] = actions.cycle_history_next,
+              ["<C-Up>"] = actions.cycle_history_prev,
+            },
+          },
+          history = {
+            path = "~/.local/share/nvim/telescope_history.sqlite3",
+            limit = 100,
+          },
+        },
+        extensions = {
+          ["ui-select"] = {
+            require("telescope.themes").get_dropdown({}),
+          },
+          live_grep_args = {
+            auto_quoting = true,
+            mappings = {
+              i = {
+                ["<C-k>"] = require("telescope-live-grep-args.actions").quote_prompt(),
+              },
+            },
+          },
+        },
+      })
+
+      telescope.load_extension("fzf")
+      telescope.load_extension("ui-select")
+      telescope.load_extension("smart_history")
+
+      keymap.set("n", "<C-p>", builtin.find_files)
+      keymap.set("n", "<leader>ff", builtin.find_files)
+      keymap.set("n", "<leader>fF", builtin.git_files)
+      keymap.set("n", "<leader>fb", builtin.buffers)
+      keymap.set("n", "<leader>fh", builtin.help_tags)
+      keymap.set("n", "<leader>fo", builtin.oldfiles)
+
+      keymap.set("n", "<leader>fg", function()
+        telescope.extensions.live_grep_args.live_grep_args()
+      end)
+      keymap.set("v", "<leader>fv", require("telescope-live-grep-args.shortcuts").grep_visual_selection)
     end,
+  },
+  {
+    "nvim-telescope/telescope-fzf-native.nvim",
+    build = "make",
+    dependencies = "nvim-telescope/telescope.nvim",
+  },
+  {
+    "nvim-telescope/telescope-ui-select.nvim",
+    dependencies = "nvim-telescope/telescope.nvim",
+  },
+  {
+    "nvim-telescope/telescope-smart-history.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim", "kkharji/sqlite.lua" },
+  },
+  {
+    "nvim-telescope/telescope-live-grep-args.nvim",
+    dependencies = "nvim-telescope/telescope.nvim",
   },
 
   -- Git
@@ -197,8 +267,8 @@ require("lazy").setup({
         end,
       })
 
-      vim.api.nvim_set_keymap("n", "<tab>", "<cmd>NvimTreeToggle<cr>", { silent = true, noremap = true })
-      vim.api.nvim_set_keymap("n", "<leader>f", "<cmd>NvimTreeFindFile<cr>", { silent = true, noremap = true })
+      keymap.set("n", "<tab>", "<cmd>NvimTreeToggle<cr>", { silent = true, noremap = true })
+      keymap.set("n", "<leader>f", "<cmd>NvimTreeFindFile<cr>", { silent = true, noremap = true })
     end,
   },
 
@@ -288,6 +358,8 @@ local null_ls = require("null-ls")
 
 lsp.on_attach(function(client, bufnr)
   lsp.default_keymaps({ buffer = bufnr })
+
+  keymap.set("n", "<leader>rl", "<cmd>lua vim.diagnostic.reset()<CR>", { buffer = bufnr })
 end)
 
 lsp.format_on_save({

@@ -10,6 +10,7 @@ brew 'ag'
 brew 'fzf'
 brew 'reattach-to-user-namespace'
 brew 'python3'
+brew 'sqlite3'
 
 brew 'neovim'
 
