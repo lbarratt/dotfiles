@@ -65,6 +65,10 @@ nvm use default
 
 source $HOME/.cargo/env
 
+# Ruby
+
+eval "$(rbenv init - zsh)"
+
 # FZF
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

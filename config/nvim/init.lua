@@ -1,5 +1,9 @@
 local keymap = vim.keymap
 
+-- Environment
+
+vim.env.NODE_OPTIONS = "--max-old-space-size=16000" -- 16GB (!)
+
 -- Global Variables
 
 vim.g.mapleader = "\\"
@@ -57,6 +61,9 @@ keymap.set("n", "N", "Nzz")
 -- Don't leave visual mode after indenting
 keymap.set("v", ">", ">gv^")
 keymap.set("v", "<", "<gv^")
+
+-- Disable macro recording with q
+keymap.set("n", "q", "<nop>")
 
 -- Init lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -219,6 +226,31 @@ require("lazy").setup({
     "nvim-telescope/telescope-live-grep-args.nvim",
     dependencies = "nvim-telescope/telescope.nvim",
   },
+  {
+    "nvim-pack/nvim-spectre",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    config = function()
+      require("spectre").setup()
+
+      keymap.set("n", "<leader>S", '<cmd>lua require("spectre").toggle()<CR>', {
+        desc = "Toggle Spectre",
+      })
+
+      keymap.set("n", "<leader>sw", '<cmd>lua require("spectre").open_visual({select_word=true})<CR>', {
+        desc = "Search current word",
+      })
+
+      keymap.set("v", "<leader>sw", '<esc><cmd>lua require("spectre").open_visual()<CR>', {
+        desc = "Search current word",
+      })
+
+      keymap.set("n", "<leader>sp", '<cmd>lua require("spectre").open_file_search({select_word=true})<CR>', {
+        desc = "Search on current file",
+      })
+    end,
+  },
 
   -- Git
   { "lewis6991/gitsigns.nvim" },
@@ -300,7 +332,6 @@ require("lazy").setup({
       { "williamboman/mason-lspconfig.nvim" },
       { "hrsh7th/nvim-cmp" },
       { "hrsh7th/cmp-nvim-lsp" },
-      { "L3MON4D3/LuaSnip" },
     },
   },
   {
@@ -309,14 +340,16 @@ require("lazy").setup({
       "nvim-lua/plenary.nvim",
       "neovim/nvim-lspconfig",
     },
-    opts = {},
+    opts = {
+      separate_diagnostic_server = false,
+    },
   },
   {
     "jay-babu/mason-null-ls.nvim",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "williamboman/mason.nvim",
-      "jose-elias-alvarez/null-ls.nvim",
+      "nvimtools/none-ls.nvim",
     },
   },
 
@@ -368,7 +401,7 @@ lsp.format_on_save({
     timeout_ms = 10000,
   },
   servers = {
-    ["null-ls"] = { "javascript", "typescript", "lua" },
+    ["null-ls"] = { "lua" },
   },
 })
 
@@ -409,13 +442,12 @@ require("typescript-tools").setup({
 
 null_ls.setup({
   sources = {
-    null_ls.builtins.formatting.prettierd,
     null_ls.builtins.formatting.stylua,
   },
 })
 
 require("mason-null-ls").setup({
-  ensure_installed = nil,
+  ensure_installed = {},
   automatic_installation = true,
 })
 
