@@ -4,29 +4,30 @@
 
 Clone this repo
 
-    git clone git://github.com/lbarratt/dotfiles ~/.dotfiles && cd ~/.dotfiles
+    git clone https://github.com/lbarratt/dotfiles.git ~/.dotfiles && cd ~/.dotfiles
 
 Install the Homebrew bundle
 
     brew tap Homebrew/bundle && brew bundle
 
-Switch shells to ZSH
-
-    echo "/usr/local/bin/zsh" | sudo tee -a /etc/shells
-    chsh -s /usr/local/bin/zsh
-
 Symlink the dotfiles
 
     git submodule init && git submodule update --recursive && rake install
 
+Setup Antibody
+
+    antidote bundle <~/.zsh_plugins.txt >~/.zsh_plugins.zsh
+
 Install TPM
 
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/scripts/install_plugins.sh
 
 Install Alacritty theme
 
-    git clone https://github.com/catppuccin/alacritty.git ~/.config/alacritty/catppuccin
+    curl -LO --output-dir ~/.dotfiles/config/alacritty https://github.com/catppuccin/alacritty/raw/main/catppuccin-mocha.toml
 
 Install virtualenv
 
     pip3 install virtualenv
+
+Install [Meslo Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Meslo)

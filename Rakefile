@@ -2,6 +2,11 @@ require "rake"
 
 desc "Install dotfiles into the home directory"
 task :install do
+  system %Q{mkdir -p ~/.tmp}
+  system %Q{mkdir -p ~/.config}
+  system %Q{mkdir -p ~/.config/alacritty}
+  system %Q{mkdir -p ~/.config/nvim}
+
   replace_all = false
 
   Dir["*"].each do |file|
@@ -29,11 +34,9 @@ task :install do
     end
   end
 
-  system %Q{mkdir -p ~/.tmp}
-  system %Q{mkdir -p ~/.config/nvim}
-
   replace_file "config/nvim/init.lua"
-  replace_file "config/alacritty/alacritty.yml"
+  replace_file "config/alacritty/alacritty.toml"
+  replace_file "config/alacritty/catppuccin-mocha.toml"
 end
 
 def replace_file(file)

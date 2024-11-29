@@ -10,20 +10,12 @@ PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:$PATH
 
 ulimit -n 12288
 
-## Antibody ZSH Plugin Manager
+## Antidote ZSH Plugin Manager
+source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
 
-autoload -Uz compinit
+antidote load
 
-for dump in ~/.zcompdump(N.mh+24); do
-  compinit
-done
-
-compinit -C
-
-source <(antibody init)
-
-antibody bundle < ~/.zsh_plugins
-
+source ~/.zsh_plugins.zsh
 
 ## Text Editor
 
@@ -44,8 +36,10 @@ chpwd() {
 ## Tooling
 
 # NVM - Node Version Manager
-export NVM_DIR=~/.nvm
-source $NVM_DIR/nvm.sh
+export NVM_DIR="$HOME/.nvm"
+
+[ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
+[ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
 
 autoload -U add-zsh-hook
 
@@ -57,17 +51,7 @@ load-nvmrc() {
 
 add-zsh-hook chpwd load-nvmrc
 
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 nvm use default
-
-# Cargo/rust
-
-source $HOME/.cargo/env
-
-# Ruby
-
-eval "$(rbenv init - zsh)"
 
 # FZF
 
@@ -93,3 +77,7 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 [ -s "/Users/luke/.bun/_bun" ] && source "/Users/luke/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Clear
+
+clear
