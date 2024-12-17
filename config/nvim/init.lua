@@ -81,6 +81,21 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
+-- Utility methods
+
+local function first(bufnr, ...)
+  local conform = require("conform")
+
+  for i = 1, select("#", ...) do
+    local formatter = select(i, ...)
+    if conform.get_formatter_info(formatter, bufnr).available then
+      return formatter
+    end
+  end
+
+  return select(1, ...)
+end
+
 -- Lazy Plugins
 
 require("lazy").setup({
@@ -344,13 +359,73 @@ require("lazy").setup({
       separate_diagnostic_server = false,
     },
   },
+
+  -- Formatters
   {
-    "jay-babu/mason-null-ls.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    dependencies = {
-      "williamboman/mason.nvim",
-      "nvimtools/none-ls.nvim",
+    "stevearc/conform.nvim",
+    event = {
+      "BufWritePre",
     },
+    cmd = {
+      "ConformInfo",
+    },
+    keys = {
+      {
+        "<leader>fa",
+        function()
+          require("conform").format({
+            async = true,
+          })
+        end,
+        mode = "",
+        desc = "Format buffer",
+      },
+    },
+    ---@module "conform"
+    ---@type conform.setupOpts
+    opts = {
+      -- Define your formatters
+      formatters_by_ft = {
+        lua = {
+          "stylua",
+        },
+        rust = {
+          "rustfmt",
+          lsp_format = "fallback",
+        },
+        javascript = function(bufnr)
+          return {
+            first(bufnr, "prettierd", "prettier"),
+            "eslint_d",
+            lsp_format = "fallback",
+          }
+        end,
+        typescript = function(bufnr)
+          return {
+            first(bufnr, "prettierd", "prettier"),
+            "eslint_d",
+            lsp_format = "fallback",
+          }
+        end,
+      },
+      default_format_opts = {
+        lsp_format = "fallback",
+      },
+      format_on_save = {
+        timeout_ms = 2000,
+      },
+      formatters = {
+        shfmt = {
+          prepend_args = {
+            "-i",
+            "2",
+          },
+        },
+      },
+    },
+    init = function()
+      vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+    end,
   },
 
   -- Autocomplete
@@ -387,23 +462,11 @@ local lsp = require("lsp-zero").preset({
   },
 })
 
-local null_ls = require("null-ls")
-
 lsp.on_attach(function(client, bufnr)
   lsp.default_keymaps({ buffer = bufnr })
 
   keymap.set("n", "<leader>rl", "<cmd>lua vim.diagnostic.reset()<CR>", { buffer = bufnr })
 end)
-
-lsp.format_on_save({
-  format_opts = {
-    async = false,
-    timeout_ms = 10000,
-  },
-  servers = {
-    ["null-ls"] = { "lua" },
-  },
-})
 
 lsp.ensure_installed({
   "rust_analyzer",
@@ -421,34 +484,39 @@ lsp.configure("lua_ls", {
   },
 })
 
-lsp.configure("eslint", {
-  on_attach = function(client, bufnr)
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      buffer = bufnr,
-      command = "EslintFixAll",
-    })
-  end,
-})
-
 lsp.setup()
 
 require("typescript-tools").setup({
   settings = {
+    separate_diagnostic_server = false,
+    tsserver_max_memory = "auto",
     tsserver_plugins = {
       "@styled/typescript-styled-plugin",
+    },
+    tsserver_file_preferences = {
+      includeCompletionsForModuleExports = true,
+      includeInlayParameterNameHints = "all",
+      includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+      includeInlayFunctionParameterTypeHints = true,
+      includeInlayVariableTypeHints = true,
+      includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+      includeInlayPropertyDeclarationTypeHints = true,
+      includeInlayFunctionLikeReturnTypeHints = true,
+      includeInlayEnumMemberValueHints = true,
+      quotePreference = "auto",
     },
   },
 })
 
-null_ls.setup({
-  sources = {
-    null_ls.builtins.formatting.stylua,
-  },
-})
+-- Formatting
 
-require("mason-null-ls").setup({
-  ensure_installed = {},
-  automatic_installation = true,
+require("conform").setup()
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*",
+  callback = function(args)
+    require("conform").format({ bufnr = args.buf })
+  end,
 })
 
 -- Autocomplete
