@@ -17,6 +17,7 @@ vim.opt.expandtab = true
 vim.opt.shiftwidth = 2
 vim.opt.softtabstop = 2
 vim.opt.laststatus = 2
+vim.opt.tabstop = 4
 vim.opt.backspace = "indent,eol,start"
 vim.opt.colorcolumn = "80"
 vim.opt.undofile = true
@@ -343,8 +344,8 @@ require("lazy").setup({
     branch = "v2.x",
     dependencies = {
       { "neovim/nvim-lspconfig" },
-      { "williamboman/mason.nvim" },
-      { "williamboman/mason-lspconfig.nvim" },
+      { "mason-org/mason.nvim" },
+      { "mason-org/mason-lspconfig.nvim" },
       { "hrsh7th/nvim-cmp" },
       { "hrsh7th/cmp-nvim-lsp" },
     },
@@ -437,7 +438,7 @@ require("lazy").setup({
     "smoka7/multicursors.nvim",
     event = "VeryLazy",
     dependencies = {
-      "smoka7/hydra.nvim",
+      "nvimtools/hydra.nvim",
     },
     opts = {},
     cmd = { "MCstart", "MCvisual", "MCclear", "MCpattern", "MCvisualPattern", "MCunderCursor" },
@@ -462,17 +463,19 @@ local lsp = require("lsp-zero").preset({
   },
 })
 
+require("mason-lspconfig").setup({
+  ensure_installed = {
+    "eslint",
+    "lua_ls",
+    "rust_analyzer",
+  },
+})
+
 lsp.on_attach(function(client, bufnr)
   lsp.default_keymaps({ buffer = bufnr })
 
   keymap.set("n", "<leader>rl", "<cmd>lua vim.diagnostic.reset()<CR>", { buffer = bufnr })
 end)
-
-lsp.ensure_installed({
-  "rust_analyzer",
-  "lua_ls",
-  "eslint",
-})
 
 lsp.configure("lua_ls", {
   settings = {

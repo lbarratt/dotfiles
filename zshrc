@@ -11,11 +11,16 @@ PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:$PATH
 ulimit -n 12288
 
 ## Antidote ZSH Plugin Manager
+
 source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
 
 antidote load
 
 source ~/.zsh_plugins.zsh
+
+## FZF ctrl+r
+
+source <(fzf --zsh)
 
 ## Text Editor
 
@@ -35,23 +40,46 @@ chpwd() {
 
 ## Tooling
 
-# NVM - Node Version Manager
-export NVM_DIR="$HOME/.nvm"
+# FNM - Fast Node Manager - (https://github.com/Schniz/fnm)
 
-[ -s "$HOMEBREW_PREFIX/opt/nvm/nvm.sh" ] && \. "$HOMEBREW_PREFIX/opt/nvm/nvm.sh"
-[ -s "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$HOMEBREW_PREFIX/opt/nvm/etc/bash_completion.d/nvm"
+FNM_PATH="$HOME/.fnm"
+
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$HOME/.fnm:$PATH"
+
+  echo "paff"
+
+  eval "`fnm env`"
+fi
+
+# Run this once, then comment out
+# fnm completions --shell=zsh > ~/.config/zsh/completions/_fnm 
+
+fpath+=~/.config/zsh/completions/_fnm
+
+autoload -U compinit
+
+compinit
 
 autoload -U add-zsh-hook
 
+# place default node version under $HOME/.node-version
 load-nvmrc() {
-  if [[ -f .nvmrc && -r .nvmrc ]]; then
-    nvm use
+  DEFAULT_NODE_VERSION="22"
+
+  if [[ -f .nvmrc && -r .nvmrc ]] || [[ -f .node-version && -r .node-version ]]; then
+    fnm use
+  elif [[ `node -v` != $DEFAULT_NODE_VERSION ]]; then
+
+    echo Reverting to node from "`node -v`" to "$DEFAULT_NODE_VERSION"
+
+    fnm use $DEFAULT_NODE_VERSION
   fi
 }
 
 add-zsh-hook chpwd load-nvmrc
 
-nvm use default
+load-nvmrc
 
 # FZF
 
@@ -77,6 +105,15 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 [ -s "/Users/luke/.bun/_bun" ] && source "/Users/luke/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Rustup
+
+. "$HOME/.cargo/env"
+
+# Go
+
+export GOPATH=$HOME/go
+export PATH=$GOPATH/bin:$HOME/.local/bin:$PATH
 
 # Clear
 
