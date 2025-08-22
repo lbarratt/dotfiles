@@ -16,7 +16,7 @@ vim.opt.nu = true
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 2
 vim.opt.softtabstop = 2
-vim.opt.laststatus = 2
+vim.opt.laststatus = 3
 vim.opt.tabstop = 4
 vim.opt.backspace = "indent,eol,start"
 vim.opt.colorcolumn = "80"
@@ -396,15 +396,15 @@ require("lazy").setup({
         },
         javascript = function(bufnr)
           return {
-            first(bufnr, "prettierd", "prettier"),
-            "eslint_d",
+            "biome",
+            "biome-organize-imports",
             lsp_format = "fallback",
           }
         end,
         typescript = function(bufnr)
           return {
-            first(bufnr, "prettierd", "prettier"),
-            "eslint_d",
+            "biome",
+            "biome-organize-imports",
             lsp_format = "fallback",
           }
         end,
@@ -451,6 +451,65 @@ require("lazy").setup({
       },
     },
   },
+
+  -- AI
+  {
+    "yetone/avante.nvim",
+    build = "make",
+    event = "VeryLazy",
+    version = false,
+    ---@module 'avante'
+    ---@type avante.Config
+    opts = {
+      -- add any opts here
+      -- for example
+      provider = "claude",
+      providers = {
+        claude = {
+          endpoint = "https://api.anthropic.com",
+          model = "claude-sonnet-4-20250514",
+          timeout = 30000, -- Timeout in milliseconds
+          extra_request_body = {
+            temperature = 0.75,
+            max_tokens = 20480,
+          },
+        },
+      },
+    },
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-lua/plenary.nvim",
+      "MunifTanjim/nui.nvim",
+      "echasnovski/mini.pick",
+      "nvim-telescope/telescope.nvim",
+      "hrsh7th/nvim-cmp",
+      "ibhagwan/fzf-lua",
+      "stevearc/dressing.nvim",
+      "folke/snacks.nvim",
+      "nvim-tree/nvim-web-devicons",
+      {
+        "HakonHarnes/img-clip.nvim",
+        event = "VeryLazy",
+        opts = {
+          default = {
+            embed_image_as_base64 = false,
+            prompt_for_file_name = false,
+            drag_and_drop = {
+              insert_mode = true,
+            },
+            use_absolute_path = true,
+          },
+        },
+      },
+      {
+        'MeanderingProgrammer/render-markdown.nvim',
+        opts = {
+          file_types = { "markdown", "Avante" },
+        },
+        ft = { "markdown", "Avante" },
+      },
+    },
+  }
 })
 
 -- LSP Setup
@@ -463,9 +522,19 @@ local lsp = require("lsp-zero").preset({
   },
 })
 
+require("lspconfig").gopls.setup({
+  settings = {
+    gopls = {
+      buildFlags = {
+        "-tags=integration"
+      }
+    }
+  }
+})
+
 require("mason-lspconfig").setup({
   ensure_installed = {
-    "eslint",
+    "biome",
     "lua_ls",
     "rust_analyzer",
   },

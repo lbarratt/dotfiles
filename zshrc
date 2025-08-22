@@ -118,3 +118,7 @@ export PATH=$GOPATH/bin:$HOME/.local/bin:$PATH
 # Clear
 
 clear
+
+# Secrets
+
+source ~/.secrets

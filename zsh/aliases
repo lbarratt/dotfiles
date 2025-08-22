@@ -67,3 +67,6 @@ function vlt {
          echo "$list"
      fi
  }
+
+# NX+Yarn
+alias nx='yarn run -T nx'
