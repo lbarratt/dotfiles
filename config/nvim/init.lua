@@ -338,28 +338,43 @@ require("lazy").setup({
     end,
   },
 
-  -- Languages
+  -- Languages / LSP
+  { "neovim/nvim-lspconfig" },
   {
-    "VonHeikemen/lsp-zero.nvim",
-    branch = "v2.x",
-    dependencies = {
-      { "neovim/nvim-lspconfig" },
-      { "mason-org/mason.nvim" },
-      { "mason-org/mason-lspconfig.nvim" },
-      { "hrsh7th/nvim-cmp" },
-      { "hrsh7th/cmp-nvim-lsp" },
+    "folke/lazydev.nvim",
+    ft = "lua",
+    opts = {
+      library = {
+        -- Load luvit types when the `vim.uv` word is found
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
     },
   },
   {
-    "pmizio/typescript-tools.nvim",
+    "mason-org/mason.nvim",
+    config = function()
+      require("mason").setup()
+    end,
+  },
+  {
+    "mason-org/mason-lspconfig.nvim",
     dependencies = {
-      "nvim-lua/plenary.nvim",
+      "mason-org/mason.nvim",
       "neovim/nvim-lspconfig",
     },
-    opts = {
-      separate_diagnostic_server = false,
-    },
+    config = function()
+      require("mason-lspconfig").setup({
+        ensure_installed = {
+          "biome",
+          "lua_ls",
+          "rust_analyzer",
+          "protols",
+        },
+      })
+    end,
   },
+  { "hrsh7th/nvim-cmp" },
+  { "hrsh7th/cmp-nvim-lsp" },
 
   -- Formatters
   {
@@ -398,6 +413,7 @@ require("lazy").setup({
           return {
             "biome",
             "biome-organize-imports",
+            first(bufnr, "prettierd", "prettier"),
             lsp_format = "fallback",
           }
         end,
@@ -405,6 +421,7 @@ require("lazy").setup({
           return {
             "biome",
             "biome-organize-imports",
+            first(bufnr, "prettierd", "prettier"),
             lsp_format = "fallback",
           }
         end,
@@ -429,9 +446,13 @@ require("lazy").setup({
     end,
   },
 
+  -- Snippets
+  { "L3MON4D3/LuaSnip" },
+
   -- Autocomplete
   { "hrsh7th/cmp-path" },
   { "hrsh7th/cmp-buffer" },
+  { "saadparwaiz1/cmp_luasnip" },
 
   -- Controversial
   {
@@ -452,101 +473,68 @@ require("lazy").setup({
     },
   },
 
-  -- AI
+  -- Claude
   {
-    "yetone/avante.nvim",
-    build = "make",
-    event = "VeryLazy",
-    version = false,
-    ---@module 'avante'
-    ---@type avante.Config
-    opts = {
-      -- add any opts here
-      -- for example
-      provider = "claude",
-      providers = {
-        claude = {
-          endpoint = "https://api.anthropic.com",
-          model = "claude-sonnet-4-20250514",
-          timeout = 30000, -- Timeout in milliseconds
-          extra_request_body = {
-            temperature = 0.75,
-            max_tokens = 20480,
-          },
-        },
-      },
-    },
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      "echasnovski/mini.pick",
-      "nvim-telescope/telescope.nvim",
-      "hrsh7th/nvim-cmp",
-      "ibhagwan/fzf-lua",
-      "stevearc/dressing.nvim",
-      "folke/snacks.nvim",
-      "nvim-tree/nvim-web-devicons",
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
+    config = true,
+    keys = {
+      { "<leader>a",  nil,                              desc = "AI/Claude Code" },
+      { "<leader>ac", "<cmd>ClaudeCode<cr>",            desc = "Toggle Claude" },
+      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>",       desc = "Focus Claude" },
+      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>",   desc = "Resume Claude" },
+      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
+      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
+      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>",       desc = "Add current buffer" },
+      { "<leader>as", "<cmd>ClaudeCodeSend<cr>",        mode = "v",                  desc = "Send to Claude" },
       {
-        "HakonHarnes/img-clip.nvim",
-        event = "VeryLazy",
-        opts = {
-          default = {
-            embed_image_as_base64 = false,
-            prompt_for_file_name = false,
-            drag_and_drop = {
-              insert_mode = true,
-            },
-            use_absolute_path = true,
-          },
-        },
+        "<leader>as",
+        "<cmd>ClaudeCodeTreeAdd<cr>",
+        desc = "Add file",
+        ft = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw" },
       },
-      {
-        'MeanderingProgrammer/render-markdown.nvim',
-        opts = {
-          file_types = { "markdown", "Avante" },
-        },
-        ft = { "markdown", "Avante" },
-      },
+      -- Diff management
+      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>",   desc = "Deny diff" },
     },
   }
 })
 
--- LSP Setup
-local lsp = require("lsp-zero").preset({
-  name = "recommended",
-  manage_nvim_cmp = {
-    set_extra_mappings = true,
-    set_format = true,
-    documentation_window = true,
-  },
+-- Define on_attach function for LSP keymaps
+local on_attach = function(client, bufnr)
+  local opts = { buffer = bufnr, noremap = true, silent = true }
+
+  -- LSP keymaps (similar to what lsp-zero provided)
+  keymap.set("n", "K", vim.lsp.buf.hover, opts)
+  keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+  keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+  keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+  keymap.set("n", "go", vim.lsp.buf.type_definition, opts)
+  keymap.set("n", "gr", vim.lsp.buf.references, opts)
+  keymap.set("n", "gs", vim.lsp.buf.signature_help, opts)
+  keymap.set("n", "<F2>", vim.lsp.buf.rename, opts)
+  keymap.set({ "n", "x" }, "<F3>", function() vim.lsp.buf.format({ async = true }) end, opts)
+  keymap.set("n", "<F4>", vim.lsp.buf.code_action, opts)
+  keymap.set("n", "gl", vim.diagnostic.open_float, opts)
+  keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
+  keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
+
+  keymap.set("n", "<leader>rl", "<cmd>lua vim.diagnostic.reset()<CR>", opts)
+end
+
+-- Get capabilities from cmp_nvim_lsp
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+-- tsgo configuration
+vim.lsp.config("tsgo", {
+  capabilities = capabilities,
+  on_attach = on_attach,
 })
 
-require("lspconfig").gopls.setup({
-  settings = {
-    gopls = {
-      buildFlags = {
-        "-tags=integration"
-      }
-    }
-  }
-})
-
-require("mason-lspconfig").setup({
-  ensure_installed = {
-    "biome",
-    "lua_ls",
-    "rust_analyzer",
-  },
-})
-
-lsp.on_attach(function(client, bufnr)
-  lsp.default_keymaps({ buffer = bufnr })
-
-  keymap.set("n", "<leader>rl", "<cmd>lua vim.diagnostic.reset()<CR>", { buffer = bufnr })
-end)
-
-lsp.configure("lua_ls", {
+-- lua_ls configuration
+vim.lsp.config("lua_ls", {
+  capabilities = capabilities,
+  on_attach = on_attach,
   settings = {
     Lua = {
       diagnostics = {
@@ -556,26 +544,33 @@ lsp.configure("lua_ls", {
   },
 })
 
-lsp.setup()
+-- rust_analyzer configuration
+vim.lsp.config("rust_analyzer", {
+  capabilities = capabilities,
+  on_attach = on_attach,
+})
 
-require("typescript-tools").setup({
+-- biome configuration
+vim.lsp.config("biome", {
+  capabilities = capabilities,
+  on_attach = on_attach,
+})
+
+-- protols configuration
+vim.lsp.config("protols", {
+  capabilities = capabilities,
+  on_attach = on_attach,
+})
+
+-- gopls configuration
+vim.lsp.config("gopls", {
+  capabilities = capabilities,
+  on_attach = on_attach,
   settings = {
-    separate_diagnostic_server = false,
-    tsserver_max_memory = "auto",
-    tsserver_plugins = {
-      "@styled/typescript-styled-plugin",
-    },
-    tsserver_file_preferences = {
-      includeCompletionsForModuleExports = true,
-      includeInlayParameterNameHints = "all",
-      includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-      includeInlayFunctionParameterTypeHints = true,
-      includeInlayVariableTypeHints = true,
-      includeInlayVariableTypeHintsWhenTypeMatchesName = false,
-      includeInlayPropertyDeclarationTypeHints = true,
-      includeInlayFunctionLikeReturnTypeHints = true,
-      includeInlayEnumMemberValueHints = true,
-      quotePreference = "auto",
+    gopls = {
+      buildFlags = {
+        "-tags=integration",
+      },
     },
   },
 })
@@ -596,12 +591,20 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 local cmp = require("cmp")
 
 cmp.setup({
+  snippet = {
+    expand = function(args)
+      require('luasnip').lsp_expand(args.body)
+    end,
+  },
   sources = {
+    { name = "lazydev", group_index = 0 }, -- set group index to 0 to skip loading LuaLS completions
     { name = "nvim_lsp" },
     { name = "buffer" },
     { name = "path" },
   },
-  mapping = {
+  mapping = cmp.mapping.preset.insert({
+    ["<Tab>"] = cmp.mapping.select_next_item(),
+    ["<S-Tab>"] = cmp.mapping.select_prev_item(),
     ["<CR>"] = cmp.mapping.confirm({ select = true }),
-  },
+  }),
 })
