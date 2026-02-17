@@ -82,21 +82,6 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
--- Utility methods
-
-local function first(bufnr, ...)
-  local conform = require("conform")
-
-  for i = 1, select("#", ...) do
-    local formatter = select(i, ...)
-    if conform.get_formatter_info(formatter, bufnr).available then
-      return formatter
-    end
-  end
-
-  return select(1, ...)
-end
-
 -- Lazy Plugins
 
 require("lazy").setup({
@@ -110,9 +95,6 @@ require("lazy").setup({
         flavour = "mocha",
         integrations = {
           nvimtree = true,
-          telescope = {
-            enabled = true,
-          },
           native_lsp = {
             enabled = true,
             virtual_text = {
@@ -170,77 +152,45 @@ require("lazy").setup({
 
   -- Search
   {
-    "nvim-telescope/telescope.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-    config = function()
-      local telescope = require("telescope")
-      local actions = require("telescope.actions")
-      local builtin = require("telescope.builtin")
-
-      require("telescope").setup({
-        defaults = {
-          cache_picker = false,
-          mappings = {
-            i = {
-              ["<C-Down>"] = actions.cycle_history_next,
-              ["<C-Up>"] = actions.cycle_history_prev,
-            },
-          },
-          history = {
-            path = "~/.local/share/nvim/telescope_history.sqlite3",
-            limit = 100,
-          },
-        },
-        extensions = {
-          ["ui-select"] = {
-            require("telescope.themes").get_dropdown({}),
-          },
-          live_grep_args = {
-            auto_quoting = true,
-            mappings = {
-              i = {
-                ["<C-k>"] = require("telescope-live-grep-args.actions").quote_prompt(),
-              },
-            },
-          },
-        },
-      })
-
-      telescope.load_extension("fzf")
-      telescope.load_extension("ui-select")
-      telescope.load_extension("smart_history")
-
-      keymap.set("n", "<C-p>", builtin.find_files)
-      keymap.set("n", "<leader>ff", builtin.find_files)
-      keymap.set("n", "<leader>fF", builtin.git_files)
-      keymap.set("n", "<leader>fb", builtin.buffers)
-      keymap.set("n", "<leader>fh", builtin.help_tags)
-      keymap.set("n", "<leader>fo", builtin.oldfiles)
-
-      keymap.set("n", "<leader>fg", function()
-        telescope.extensions.live_grep_args.live_grep_args()
-      end)
-      keymap.set("v", "<leader>fv", require("telescope-live-grep-args.shortcuts").grep_visual_selection)
+    'dmtrKovalenko/fff.nvim',
+    build = function()
+      require("fff.download").download_or_build_binary()
     end,
-  },
-  {
-    "nvim-telescope/telescope-fzf-native.nvim",
-    build = "make",
-    dependencies = "nvim-telescope/telescope.nvim",
-  },
-  {
-    "nvim-telescope/telescope-ui-select.nvim",
-    dependencies = "nvim-telescope/telescope.nvim",
-  },
-  {
-    "nvim-telescope/telescope-smart-history.nvim",
-    dependencies = { "nvim-telescope/telescope.nvim", "kkharji/sqlite.lua" },
-  },
-  {
-    "nvim-telescope/telescope-live-grep-args.nvim",
-    dependencies = "nvim-telescope/telescope.nvim",
+    opts = {
+      debug = {
+        enabled = true,
+        show_scores = true,
+      },
+    },
+    lazy = false,
+    keys = {
+      {
+        "<C-p>",
+        function() require('fff').find_files() end,
+        desc = 'FFFind files',
+      },
+      {
+        "<leader>ff",
+        function() require('fff').find_files() end,
+        desc = 'FFFind files',
+      },
+      {
+        "<leader>ff",
+        function() require('fff').live_grep() end,
+        desc = 'LiFFFe grep',
+      },
+      {
+        "<leader>fg",
+        function()
+          require('fff').live_grep({
+            grep = {
+              modes = { 'fuzzy', 'plain' }
+            }
+          })
+        end,
+        desc = 'Live fffuzy grep',
+      }
+    }
   },
   {
     "nvim-pack/nvim-spectre",
@@ -413,7 +363,13 @@ require("lazy").setup({
           return {
             "biome",
             "biome-organize-imports",
-            first(bufnr, "prettierd", "prettier"),
+            lsp_format = "fallback",
+          }
+        end,
+        javascriptreact = function(bufnr)
+          return {
+            "biome",
+            "biome-organize-imports",
             lsp_format = "fallback",
           }
         end,
@@ -421,7 +377,13 @@ require("lazy").setup({
           return {
             "biome",
             "biome-organize-imports",
-            first(bufnr, "prettierd", "prettier"),
+            lsp_format = "fallback",
+          }
+        end,
+        typescriptreact = function(bufnr)
+          return {
+            "biome",
+            "biome-organize-imports",
             lsp_format = "fallback",
           }
         end,
@@ -529,6 +491,26 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities()
 vim.lsp.config("tsgo", {
   capabilities = capabilities,
   on_attach = on_attach,
+  cmd = {
+    "tsgo",
+    "--lsp",
+    "-stdio"
+  },
+  filetypes = {
+    "typescript",
+    "typescriptreact",
+    "javascript",
+    "javascriptreact"
+  },
+  root_markers = {
+    "tsconfig.json",
+    "package.json",
+  },
+  init_options = {
+    preferences = {
+      importModuleSpecifierPreference = "relative",
+    },
+  },
 })
 
 -- lua_ls configuration
@@ -538,7 +520,9 @@ vim.lsp.config("lua_ls", {
   settings = {
     Lua = {
       diagnostics = {
-        globals = { "vim" },
+        globals = {
+          "vim"
+        },
       },
     },
   },
@@ -574,6 +558,9 @@ vim.lsp.config("gopls", {
     },
   },
 })
+
+-- Disable eslint auto-start (auto-discovered by Neovim 0.11+)
+vim.lsp.enable('eslint', false)
 
 -- Formatting
 

@@ -47,8 +47,6 @@ FNM_PATH="$HOME/.fnm"
 if [ -d "$FNM_PATH" ]; then
   export PATH="$HOME/.fnm:$PATH"
 
-  echo "paff"
-
   eval "`fnm env`"
 fi
 
@@ -102,7 +100,7 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 
 # bun
 
-[ -s "/Users/luke/.bun/_bun" ] && source "/Users/luke/.bun/_bun"
+[ -s "~/.bun/_bun" ] && source "~/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
@@ -118,6 +116,15 @@ export PATH=$GOPATH/bin:$HOME/.local/bin:$PATH
 # Clear
 
 clear
+
+# Yarn Switch
+source "~/.yarn/switch/env"
+
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+
+# NX
+export NX_TUI=false
 
 # Secrets
 
