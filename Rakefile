@@ -37,6 +37,7 @@ task :install do
   replace_file "config/nvim/init.lua"
   replace_file "config/alacritty/alacritty.toml"
   replace_file "config/alacritty/catppuccin-mocha.toml"
+  replace_file "config/zellij/config.kdl"
 end
 
 def replace_file(file)

@@ -1,0 +1,135 @@
+default_shell "zsh"
+default_layout "luke"
+theme "catppuccin-mocha"
+scroll_buffer_size 10000
+pane_frames false
+simplified_ui true
+copy_on_select true
+
+ui {
+    // Disables pane/tab info from being sent to the terminal title
+    pane_readout "off"
+
+    pane_frames {
+        // Show tab numbers
+        hide_session_name false
+    }
+}
+
+keybinds clear-defaults=true {
+    // Replicate: prefix C-a
+    shared_except "tmux" "locked" {
+        bind "Ctrl a" { SwitchToMode "Tmux"; }
+    }
+
+    tmux {
+        // Replicate: Vim bindings for selecting panes
+        bind "h" { MoveFocus "Left"; SwitchToMode "Normal"; }
+        bind "j" { MoveFocus "Down"; SwitchToMode "Normal"; }
+        bind "k" { MoveFocus "Up"; SwitchToMode "Normal"; }
+        bind "l" { MoveFocus "Right"; SwitchToMode "Normal"; }
+
+        // Replicate: bind % and bind "
+        bind "%" { NewPane "Right"; SwitchToMode "Normal"; }
+        bind "\"" { NewPane "Down"; SwitchToMode "Normal"; }
+
+        // Replicate: bind -n C-k clear-history
+        bind "Ctrl k" { Clear; SwitchToMode "Normal"; }
+
+        // Replicate: prefix + c (New Tab)
+        bind "c" { NewTab; SwitchToMode "Normal"; }
+
+        // Scroll/Copy Mode (Vim-like)
+        bind "v" { SwitchToMode "Scroll"; }
+
+        // Support C-a {0,1,2...} tab switching
+        bind "1" { GoToTab 1; SwitchToMode "Normal"; }
+        bind "2" { GoToTab 2; SwitchToMode "Normal"; }
+        bind "3" { GoToTab 3; SwitchToMode "Normal"; }
+        bind "4" { GoToTab 4; SwitchToMode "Normal"; }
+        bind "5" { GoToTab 5; SwitchToMode "Normal"; }
+        bind "6" { GoToTab 6; SwitchToMode "Normal"; }
+        bind "7" { GoToTab 7; SwitchToMode "Normal"; }
+        bind "8" { GoToTab 8; SwitchToMode "Normal"; }
+        bind "9" { GoToTab 9; SwitchToMode "Normal"; }
+
+        // Replicate tmux search
+        bind "[" { SwitchToMode "Scroll"; }
+        bind "/" { SwitchToMode "EnterSearch"; SearchInput 0; }
+
+        // Half-page scrolling (Vim style)
+        bind "Ctrl d" { HalfPageScrollDown; }
+        bind "Ctrl u" { HalfPageScrollUp; }
+
+        // Replicate: Pressing Esc to cancel the prefix
+        bind "Esc" "Enter" { SwitchToMode "Normal"; }
+
+        // Replicate: prefix + x (Kill Pane)
+        bind "x" { CloseFocus; SwitchToMode "Normal"; }
+
+        // Replicate: prefix + & (Kill Tab/Window)
+        bind "&" { CloseTab; SwitchToMode "Normal"; }
+
+        // Kill the whole session
+        bind "Q" { Quit; }
+
+        // Trigger RenameTab mode
+        bind "r" { SwitchToMode "RenameTab"; }
+
+        // Move the physical position of the tab
+        bind "Left" { MoveTab "Left"; SwitchToMode "Normal"; }
+        bind "Right" { MoveTab "Right"; SwitchToMode "Normal"; }
+    }
+
+    // This replicates: setw -g mode-keys vi
+    scroll {
+        // Replicate: bind-key -Tcopy-mode-vi 'v' / 'y'
+        bind "v" { EditScrollback; SwitchToMode "Normal"; }
+        bind "y" { Copy; SwitchToMode "Normal"; }
+        bind "Esc" { SwitchToMode "Normal"; }
+
+        // Navigation (Vim-style)
+        bind "j" "Down" { ScrollDown; }
+        bind "k" "Up" { ScrollUp; }
+        bind "Ctrl f" "PageDown" { PageScrollDown; }
+        bind "Ctrl b" "PageUp" { PageScrollUp; }
+        bind "d" { HalfPageScrollDown; }
+        bind "u" { HalfPageScrollUp; }
+        bind "h" "Left" { MoveFocus "Left"; }
+        bind "l" "Right" { MoveFocus "Right"; }
+
+        // Selection & Copying (bind-key -Tcopy-mode-vi 'v')
+        bind "s" { SwitchToMode "EnterSearch"; SearchInput 0; }
+        bind "v" "Space" { SwitchToMode "Normal"; EditScrollback; } // Opens in $EDITOR
+        bind "y" "Enter" { Copy; SwitchToMode "Normal"; }
+
+        bind "Esc" "q" { SwitchToMode "Normal"; }
+    }
+
+    search {
+        // Navigation between matches (Like 'n' and 'N' in Vim)
+        bind "n" { Search "down"; }
+        bind "p" { Search "up"; }
+
+        bind "j" "Down" { ScrollDown; }
+        bind "k" "Up" { ScrollUp; }
+
+        bind "Esc" "q" { SwitchToMode "Normal"; }
+    }
+
+    entersearch {
+        bind "Enter" { SwitchToMode "Search"; }
+        bind "Esc" { SwitchToMode "Normal"; }
+    }
+
+    renametab {
+        // Enter will finish the rename and switch to Normal mode
+        bind "Enter" { SwitchToMode "Normal"; }
+
+        // Pressing Esc will undo the rename and go back
+        bind "Esc" { UndoRenameTab; SwitchToMode "Normal"; }
+
+        // Ctrl+c will cancel and go back
+        bind "Ctrl c" { SwitchToMode "Normal"; }
+    }
+}

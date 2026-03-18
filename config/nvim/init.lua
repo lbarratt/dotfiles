@@ -319,6 +319,7 @@ require("lazy").setup({
           "lua_ls",
           "rust_analyzer",
           "protols",
+          "tsgo",
         },
       })
     end,
@@ -357,43 +358,36 @@ require("lazy").setup({
         },
         rust = {
           "rustfmt",
-          lsp_format = "fallback",
         },
-        javascript = function(bufnr)
-          return {
-            "biome",
-            "biome-organize-imports",
-            lsp_format = "fallback",
-          }
-        end,
-        javascriptreact = function(bufnr)
-          return {
-            "biome",
-            "biome-organize-imports",
-            lsp_format = "fallback",
-          }
-        end,
-        typescript = function(bufnr)
-          return {
-            "biome",
-            "biome-organize-imports",
-            lsp_format = "fallback",
-          }
-        end,
-        typescriptreact = function(bufnr)
-          return {
-            "biome",
-            "biome-organize-imports",
-            lsp_format = "fallback",
-          }
-        end,
+        javascript = {
+          "biome-check",
+        },
+        javascriptreact = {
+          "biome-check",
+        },
+        typescript = {
+          "biome-check",
+        },
+        typescriptreact = {
+          "biome-check",
+        },
+        json = {
+          "biome-check",
+        },
+        jsonc = {
+          "biome-check",
+        },
       },
       default_format_opts = {
         lsp_format = "fallback",
       },
-      format_on_save = {
-        timeout_ms = 2000,
-      },
+      format_after_save = function(bufnr)
+        -- Skip formatting when quitting to avoid synchronous fallback freeze
+        if vim.b[bufnr].conform_quitting then
+          return
+        end
+        return { timeout_ms = 500, lsp_format = "fallback" }
+      end,
       formatters = {
         shfmt = {
           prepend_args = {
@@ -405,6 +399,15 @@ require("lazy").setup({
     },
     init = function()
       vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+
+      -- Mark buffers when quitting so format_after_save can skip them
+      vim.api.nvim_create_autocmd("QuitPre", {
+        callback = function()
+          for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+            vim.b[buf].conform_quitting = true
+          end
+        end,
+      })
     end,
   },
 
@@ -481,6 +484,12 @@ local on_attach = function(client, bufnr)
   keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
   keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 
+  -- Disable formatting if the LSP is Biome
+  if client.name == "biome" then
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
+  end
+
   keymap.set("n", "<leader>rl", "<cmd>lua vim.diagnostic.reset()<CR>", opts)
 end
 
@@ -503,13 +512,29 @@ vim.lsp.config("tsgo", {
     "javascriptreact"
   },
   root_markers = {
-    "tsconfig.json",
+    ".git",
     "package.json",
+    "tsconfig.json",
   },
+  reuse_client = function(client, config)
+    return client.name == config.name
+  end,
   init_options = {
     preferences = {
       importModuleSpecifierPreference = "relative",
     },
+  },
+  settings = {
+    typescript = {
+      tsserver = {
+        maxTsServerMemory = 8192,
+        maxMemory = 8192,
+      },
+    },
+  },
+  -- Silence organize imports command warning
+  commands = {
+    ["_typescript.didOrganizeImports"] = function() end,
   },
 })
 
@@ -561,17 +586,6 @@ vim.lsp.config("gopls", {
 
 -- Disable eslint auto-start (auto-discovered by Neovim 0.11+)
 vim.lsp.enable('eslint', false)
-
--- Formatting
-
-require("conform").setup()
-
-vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*",
-  callback = function(args)
-    require("conform").format({ bufnr = args.buf })
-  end,
-})
 
 -- Autocomplete
 

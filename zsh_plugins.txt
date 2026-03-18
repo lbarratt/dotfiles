@@ -2,7 +2,6 @@ getantidote/use-omz
 
 ohmyzsh/ohmyzsh path:lib
 ohmyzsh/ohmyzsh path:plugins/git
-ohmyzsh/ohmyzsh path:plugins/gpg-agent
 ohmyzsh/ohmyzsh path:themes/muse.zsh-theme
 
 zsh-users/zsh-completions
