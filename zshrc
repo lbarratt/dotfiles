@@ -88,14 +88,6 @@ export EDITOR=nvim
 
 zsource $HOME/.dotfiles/zsh/aliases
 
-## Functions
-
-# Show contents of directory after cd-ing into it
-
-chpwd() {
-  ls -la
-}
-
 ## Tooling
 
 # FNM - Fast Node Manager - (https://github.com/Schniz/fnm)
@@ -188,6 +180,10 @@ pyenv() {
   pyenv "$@"
 }
 
+# Ruby
+
+eval "$(rbenv init - --no-rehash zsh)"
+
 # NX
 
 export NX_TUI=false
@@ -205,3 +201,12 @@ if [ $PROFILING_MODE -ne 0 ]; then
 
     echo "Shell init time: $((zsh_end_time - zsh_start_time)) ms"
 fi
+
+# pnpm
+
+export PNPM_HOME="/Users/luke/Library/pnpm"
+
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac

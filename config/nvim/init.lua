@@ -1,3 +1,7 @@
+if vim.loader then
+  vim.loader.enable()
+end
+
 local keymap = vim.keymap
 
 -- Environment
@@ -39,6 +43,7 @@ vim.opt.termguicolors = true
 vim.opt.backup = false
 vim.opt.writebackup = false
 vim.opt.undodir = vim.fn.expand("~/.vim/undodir")
+vim.opt.re = 0
 
 -- Send "d" to a blackhole register
 keymap.set("n", "d", '"_d', { silent = true, noremap = true })
@@ -66,6 +71,15 @@ keymap.set("v", "<", "<gv^")
 -- Disable macro recording with q
 keymap.set("n", "q", "<nop>")
 
+-- Disable native LSP file watching
+local ok, wf = pcall(require, "vim.lsp._watchfiles")
+
+if ok then
+  wf._watchfunc = function()
+    return function() end
+  end
+end
+
 -- Init lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
@@ -81,6 +95,39 @@ if not vim.loop.fs_stat(lazypath) then
 end
 
 vim.opt.rtp:prepend(lazypath)
+
+local node_bin_dir_cache = {}
+
+-- Resolve the node version pinned in the nearest `.nvmrc` via fnm.
+local function node_bin_dir_from_nvmrc(dir)
+  local root = vim.fs.root(dir, { ".nvmrc" })
+
+  if not root or vim.fn.executable("fnm") ~= 1 then
+    return nil
+  end
+
+  local version = vim.trim(table.concat(vim.fn.readfile(root .. "/.nvmrc"), ""))
+
+  if version == "" then
+    return nil
+  end
+
+  if node_bin_dir_cache[version] == nil then
+    local result = vim.system({
+      "fnm",
+      "exec",
+      "--using=" .. version,
+      "--",
+      "sh",
+      "-c",
+      'dirname "$(command -v node)"',
+    }, { text = true }):wait()
+
+    node_bin_dir_cache[version] = result.code == 0 and vim.trim(result.stdout) or false
+  end
+
+  return node_bin_dir_cache[version] or nil
+end
 
 -- Lazy Plugins
 
@@ -125,12 +172,13 @@ require("lazy").setup({
     "nvim-lualine/lualine.nvim",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
+      "catppuccin",
     },
     opt = true,
     config = function()
       require("lualine").setup({
         options = {
-          theme = "catppuccin",
+          theme = "catppuccin-nvim",
         },
         extensions = {
           "nvim-tree",
@@ -219,10 +267,53 @@ require("lazy").setup({
   },
 
   -- Git
-  { "lewis6991/gitsigns.nvim" },
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require('gitsigns').setup({
+        update_debounce     = 5000,
+
+        attach_to_untracked = false,
+        signcolumn          = true,
+        numhl               = false,
+        linehl              = false,
+        word_diff           = false,
+
+        watch_gitdir        = {
+          interval = 5000,
+          enable = false
+        },
+      })
+    end
+  },
 
   -- Syntax
-  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      require("nvim-treesitter").setup({
+        ensure_installed = {
+          "lua",
+          "vim",
+          "vimdoc",
+          "query",
+          "go",
+          "rust",
+          "javascript",
+          "typescript",
+          "sql",
+        },
+        auto_install = true,
+        highlight = {
+          enable = true
+        },
+        indent = {
+          enable = true
+        },
+      })
+    end,
+  },
 
   -- Files
   {
@@ -289,7 +380,9 @@ require("lazy").setup({
   },
 
   -- Languages / LSP
-  { "neovim/nvim-lspconfig" },
+  {
+    "neovim/nvim-lspconfig",
+  },
   {
     "folke/lazydev.nvim",
     ft = "lua",
@@ -311,16 +404,26 @@ require("lazy").setup({
     dependencies = {
       "mason-org/mason.nvim",
       "neovim/nvim-lspconfig",
+      "mfussenegger/nvim-dap",
+      "jay-babu/mason-nvim-dap.nvim",
     },
     config = function()
       require("mason-lspconfig").setup({
         ensure_installed = {
-          "biome",
           "lua_ls",
-          "rust_analyzer",
+          -- rust_analyzer is deliberately not managed by Mason: see the
+          -- rust_analyzer configuration below.
           "protols",
-          "tsgo",
+          "gopls",
         },
+        automatic_installation = true,
+      })
+
+      require("mason-nvim-dap").setup({
+        ensure_installed = {
+          "delve",
+        },
+        automatic_installation = true,
       })
     end,
   },
@@ -360,35 +463,70 @@ require("lazy").setup({
           "rustfmt",
         },
         javascript = {
-          "biome-check",
+          "oxfmt",
         },
         javascriptreact = {
-          "biome-check",
+          "oxfmt",
         },
         typescript = {
-          "biome-check",
+          "oxfmt",
         },
         typescriptreact = {
-          "biome-check",
+          "oxfmt",
         },
         json = {
-          "biome-check",
+          "oxfmt",
         },
         jsonc = {
-          "biome-check",
+          "oxfmt",
         },
       },
       default_format_opts = {
         lsp_format = "fallback",
       },
-      format_after_save = function(bufnr)
-        -- Skip formatting when quitting to avoid synchronous fallback freeze
-        if vim.b[bufnr].conform_quitting then
-          return
-        end
-        return { timeout_ms = 500, lsp_format = "fallback" }
-      end,
+      format_after_save = {
+        timeout_ms = 500,
+        lsp_format = "fallback",
+      },
       formatters = {
+        oxfmt = {
+          cwd = function(_, ctx)
+            return vim.fs.root(ctx.dirname, {
+              {
+                "oxfmt.editor.config.ts"
+              },
+              {
+                ".oxfmtrc.json",
+                ".oxfmtrc.jsonc",
+                "oxfmt.config.ts"
+              },
+              {
+                "vite.config.ts",
+                "vite.config.js"
+              },
+            })
+          end,
+
+          append_args = function(_, ctx)
+            local root = vim.fs.root(ctx.dirname, { "oxfmt.editor.config.ts" })
+
+            if root then
+              return { "--config", root .. "/oxfmt.editor.config.ts" }
+            end
+
+            return {}
+          end,
+
+          env = function(_, ctx)
+            local node_bin_dir = node_bin_dir_from_nvmrc(ctx.dirname)
+
+            if node_bin_dir then
+              return { PATH = node_bin_dir .. ":" .. vim.env.PATH }
+            end
+
+            return nil
+          end,
+        },
         shfmt = {
           prepend_args = {
             "-i",
@@ -399,15 +537,40 @@ require("lazy").setup({
     },
     init = function()
       vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+    end,
+  },
 
-      -- Mark buffers when quitting so format_after_save can skip them
-      vim.api.nvim_create_autocmd("QuitPre", {
-        callback = function()
-          for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-            vim.b[buf].conform_quitting = true
-          end
-        end,
-      })
+  -- Debugging
+  {
+    "mfussenegger/nvim-dap",
+    dependencies = {
+      "leoluz/nvim-dap-go",
+      "rcarriga/nvim-dap-ui",
+      "theHamsta/nvim-dap-virtual-text",
+      "nvim-neotest/nvim-nio",
+      "williamboman/mason.nvim",
+    },
+    config = function()
+      local dap = require("dap")
+      local dapui = require("dapui")
+
+      require("dapui").setup()
+      require("dap-go").setup()
+      require("nvim-dap-virtual-text").setup()
+
+      -- Automatically open/close UI
+      dap.listeners.before.attach.dapui_config = function() dapui.open() end
+      dap.listeners.before.launch.dapui_config = function() dapui.open() end
+      dap.listeners.after.event_initialized.dapui_config = function() dapui.open() end
+      dap.listeners.before.event_terminated.dapui_config = function() dapui.close() end
+      dap.listeners.before.event_exited.dapui_config = function() dapui.close() end
+
+      -- Essential Keymaps
+      vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Debug: Toggle Breakpoint" })
+      vim.keymap.set("n", "<leader>dc", dap.continue, { desc = "Debug: Start/Continue" })
+      vim.keymap.set("n", "<leader>di", dap.step_into, { desc = "Debug: Step Into" })
+      vim.keymap.set("n", "<leader>do", dap.step_over, { desc = "Debug: Step Over" })
+      vim.keymap.set("n", "<leader>dt", function() require('dap-go').debug_test() end, { desc = "Debug: Test" })
     end,
   },
 
@@ -478,14 +641,19 @@ local on_attach = function(client, bufnr)
   keymap.set("n", "gr", vim.lsp.buf.references, opts)
   keymap.set("n", "gs", vim.lsp.buf.signature_help, opts)
   keymap.set("n", "<F2>", vim.lsp.buf.rename, opts)
-  keymap.set({ "n", "x" }, "<F3>", function() vim.lsp.buf.format({ async = true }) end, opts)
+
+  -- Format through conform with LSP formatting only as fallback
+  keymap.set({ "n", "x" }, "<F3>", function()
+    require("conform").format({ async = true, lsp_format = "fallback" })
+  end, opts)
+
   keymap.set("n", "<F4>", vim.lsp.buf.code_action, opts)
   keymap.set("n", "gl", vim.diagnostic.open_float, opts)
   keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
   keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 
-  -- Disable formatting if the LSP is Biome
-  if client.name == "biome" then
+  -- Handle JS/TS formatting with conform + oxfmt
+  if client.name == "tsc" then
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
   end
@@ -496,34 +664,72 @@ end
 -- Get capabilities from cmp_nvim_lsp
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
--- tsgo configuration
-vim.lsp.config("tsgo", {
+local function find_typescript_lsp_binary(root_dir)
+  local dir = root_dir
+
+  while dir do
+    for _, name in ipairs({ "tsc-native", "tsgo", "tsc" }) do
+      local candidate = vim.fs.joinpath(dir, "node_modules", ".bin", name)
+
+      if vim.fn.executable(candidate) == 1 then
+        return candidate
+      end
+    end
+
+    local parent = vim.fs.dirname(dir)
+
+    if parent == dir then
+      break
+    end
+
+    dir = parent
+  end
+
+  return "tsc"
+end
+
+vim.lsp.config("tsc", {
   capabilities = capabilities,
   on_attach = on_attach,
-  cmd = {
-    "tsgo",
-    "--lsp",
-    "-stdio"
-  },
-  filetypes = {
-    "typescript",
-    "typescriptreact",
-    "javascript",
-    "javascriptreact"
-  },
-  root_markers = {
-    ".git",
-    "package.json",
-    "tsconfig.json",
-  },
+
+  cmd = function(dispatchers, config)
+    local root_dir = config.root_dir or vim.fn.getcwd()
+    local binary = find_typescript_lsp_binary(root_dir)
+
+    return vim.lsp.rpc.start(
+      {
+        binary,
+        "--lsp",
+        "--stdio"
+      },
+      dispatchers,
+      {
+        cwd = root_dir,
+      }
+    )
+  end,
+
+  root_dir = function(bufnr, on_dir)
+    local root_dir = vim.fs.root(bufnr, {
+      "pnpm-lock.yaml",
+      "package-lock.json",
+      "yarn.lock",
+      ".git",
+    })
+
+    on_dir(root_dir or vim.fn.getcwd())
+  end,
+
   reuse_client = function(client, config)
     return client.name == config.name
   end,
+
   init_options = {
     preferences = {
       importModuleSpecifierPreference = "relative",
     },
   },
+
   settings = {
     typescript = {
       tsserver = {
@@ -532,16 +738,21 @@ vim.lsp.config("tsgo", {
       },
     },
   },
+
   -- Silence organize imports command warning
   commands = {
     ["_typescript.didOrganizeImports"] = function() end,
   },
 })
 
+-- Enable servers explicitly when configured but not installed via mason.
+vim.lsp.enable("tsc")
+
 -- lua_ls configuration
 vim.lsp.config("lua_ls", {
   capabilities = capabilities,
   on_attach = on_attach,
+
   settings = {
     Lua = {
       diagnostics = {
@@ -553,17 +764,83 @@ vim.lsp.config("lua_ls", {
   },
 })
 
--- rust_analyzer configuration
+-- Use the rust-analyzer shipped with the workspace's pinned toolchain.
+local function find_rust_toolchain_channel(root_dir)
+  local toolchain_file = vim.fs.find(
+    { "rust-toolchain.toml", "rust-toolchain" },
+    { path = root_dir, upward = true, type = "file" }
+  )[1]
+
+  if toolchain_file == nil then
+    return nil
+  end
+
+  local lines = vim.fn.readfile(toolchain_file)
+
+  if toolchain_file:sub(-5) == ".toml" then
+    for _, line in ipairs(lines) do
+      local channel = line:match('^%s*channel%s*=%s*"([^"]+)"')
+
+      if channel ~= nil then
+        return channel
+      end
+    end
+
+    return nil
+  end
+
+  -- Legacy `rust-toolchain` files contain just the channel name.
+  local channel = vim.trim(lines[1] or "")
+
+  if channel == "" then
+    return nil
+  end
+
+  return channel
+end
+
+local function rust_analyzer_cmd(root_dir)
+  local channel = find_rust_toolchain_channel(root_dir)
+
+  if channel == nil then
+    return { "rust-analyzer" }
+  end
+
+  local which = vim.system({ "rustup", "which", "--toolchain", channel, "rust-analyzer" }):wait()
+
+  if which.code ~= 0 then
+    vim.notify(
+      ("rust-analyzer is not installed for toolchain %s; falling back to the rust-analyzer on PATH.\n"
+        .. "Install it with: rustup component add rust-analyzer --toolchain %s"):format(channel, channel),
+      vim.log.levels.WARN
+    )
+
+    return { "rust-analyzer" }
+  end
+
+  return { "rustup", "run", channel, "rust-analyzer" }
+end
+
 vim.lsp.config("rust_analyzer", {
   capabilities = capabilities,
   on_attach = on_attach,
+
+  cmd = function(dispatchers, config)
+    local root_dir = config.root_dir or vim.fn.getcwd()
+
+    return vim.lsp.rpc.start(rust_analyzer_cmd(root_dir), dispatchers, {
+      cwd = root_dir,
+    })
+  end,
+
+  settings = {
+    ["rust-analyzer"] = {
+      cargo = { features = "all" },
+    },
+  },
 })
 
--- biome configuration
-vim.lsp.config("biome", {
-  capabilities = capabilities,
-  on_attach = on_attach,
-})
+vim.lsp.enable("rust_analyzer")
 
 -- protols configuration
 vim.lsp.config("protols", {
@@ -575,17 +852,61 @@ vim.lsp.config("protols", {
 vim.lsp.config("gopls", {
   capabilities = capabilities,
   on_attach = on_attach,
+
   settings = {
     gopls = {
       buildFlags = {
         "-tags=integration",
+        "-tags=debug",
+      },
+      directoryFilters = {
+        "-node_modules",
+        "-.git",
       },
     },
   },
 })
 
+-- starpls configuration
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = {
+    "bzl",
+    "bazel"
+  },
+
+  callback = function(args)
+    local bufnr = args.buf
+    local bufname = vim.api.nvim_buf_get_name(bufnr)
+
+    -- Skip if buffer is empty or a virtual URI (like fff:// or telescope://)
+    if bufname == "" or bufname:match("^%w+://") then
+      return
+    end
+
+    local starpls_config = {
+      name = 'starpls',
+      cmd = { 'starpls' },
+
+      -- Pass the root marker function directly to find the workspace path
+      root_dir = vim.fs.root(bufnr, { 'WORKSPACE', 'MODULE.bazel', '.git' }),
+      settings = {}
+    }
+
+    if starpls_config.root_dir then
+      vim.lsp.start(starpls_config, {
+        bufnr = bufnr,
+      })
+    end
+  end,
+})
+
 -- Disable eslint auto-start (auto-discovered by Neovim 0.11+)
-vim.lsp.enable('eslint', false)
+vim.lsp.enable("eslint", false)
+
+-- Debounce LSP updates
+vim.diagnostic.config({
+  update_in_insert = false,
+})
 
 -- Autocomplete
 
@@ -598,7 +919,7 @@ cmp.setup({
     end,
   },
   sources = {
-    { name = "lazydev", group_index = 0 }, -- set group index to 0 to skip loading LuaLS completions
+    { name = "lazydev", group_index = 0 },
     { name = "nvim_lsp" },
     { name = "buffer" },
     { name = "path" },
