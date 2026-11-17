@@ -31,3 +31,7 @@ After the first run, configuration is managed by mise:
 ## Manual steps
 
 Install [Meslo Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Meslo)
+
+## Credits
+
+Originally forked from [Ryan Bates' dotfiles](https://github.com/ryanb/dotfiles) as they were in [early 2009](https://github.com/ryanb/dotfiles/tree/145906d11810c691dbb1a47481d790e3ad186dcb).
