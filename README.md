@@ -1,4 +1,4 @@
-### Luke Barratt's dotfiles
+# Luke Barratt's dotfiles
 
 ## Installation
 
