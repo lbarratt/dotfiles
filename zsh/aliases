@@ -1,13 +1,11 @@
 # Handle the fact that this file will be used with multiple OSs
-platform=`uname`
-
-if [[ $platform == 'Linux' ]]; then
+if [[ $OSTYPE == linux* ]]; then
   alias a='ls -lrth --color'
-elif [[ $platform == 'Darwin' ]]; then
+  alias l='ls -pla --color=auto --group-directories-first'
+elif [[ $OSTYPE == darwin* ]]; then
   alias a='ls -lrthG'
+  alias l='gls -pla --color=auto --group-directories-first' # GNU ls, from Homebrew coreutils
 fi
-
-alias l='gls -pla --color=auto --group-directories-first'
 
 # Editor
 alias vim='nvim'

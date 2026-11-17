@@ -98,35 +98,21 @@ vim.opt.rtp:prepend(lazypath)
 
 local node_bin_dir_cache = {}
 
--- Resolve the node version pinned in the nearest `.nvmrc` via fnm.
+-- Resolve the node version via mise using the nearest `.nvmrc`.
 local function node_bin_dir_from_nvmrc(dir)
   local root = vim.fs.root(dir, { ".nvmrc" })
 
-  if not root or vim.fn.executable("fnm") ~= 1 then
+  if not root or vim.fn.executable("mise") ~= 1 then
     return nil
   end
 
-  local version = vim.trim(table.concat(vim.fn.readfile(root .. "/.nvmrc"), ""))
+  if node_bin_dir_cache[root] == nil then
+    local result = vim.system({ "mise", "which", "node" }, { cwd = root, text = true }):wait()
 
-  if version == "" then
-    return nil
+    node_bin_dir_cache[root] = result.code == 0 and vim.fs.dirname(vim.trim(result.stdout)) or false
   end
 
-  if node_bin_dir_cache[version] == nil then
-    local result = vim.system({
-      "fnm",
-      "exec",
-      "--using=" .. version,
-      "--",
-      "sh",
-      "-c",
-      'dirname "$(command -v node)"',
-    }, { text = true }):wait()
-
-    node_bin_dir_cache[version] = result.code == 0 and vim.trim(result.stdout) or false
-  end
-
-  return node_bin_dir_cache[version] or nil
+  return node_bin_dir_cache[root] or nil
 end
 
 -- Lazy Plugins

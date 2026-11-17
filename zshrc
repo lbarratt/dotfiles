@@ -33,52 +33,54 @@ zsource() {
 
 unsetopt correct_all
 
-# Required for prompt command substitution — normally set by OMZ lib/theme-and-appearance.zsh
+# Required for prompt command substitution. Usually set by OMZ.
 setopt prompt_subst
 
-# Skip OMZ's compinit — we run it ourselves later
+# Skip OMZ compinit. We run this manually later.
 skip_global_compinit=1
 
 ## Environment
 
-PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:$PATH
-
-## Completion (must run before plugins that call compdef)
-
-autoload -Uz compinit
-
-ZSH_COMPDUMP="$HOME/.zcompdump"
-
-compinit -C -d "$ZSH_COMPDUMP"
+PATH=/usr/local/bin:/usr/local/sbin:$HOME/.bin:/opt/homebrew/bin:$PATH
 
 ## Antidote ZSH Plugin Manager (static loading)
 
-# Pre-set $ZSH so use-omz skips its `antidote path ohmyzsh/ohmyzsh` subprocess call
-export ZSH="$HOME/Library/Caches/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-ohmyzsh-SLASH-ohmyzsh"
+# Resolve git status async
+zstyle ':omz:alpha:lib:git' async-prompt yes
 
-# Only source antidote when the static plugin file needs regenerating
+# antidote updates oh-my-zsh
+zstyle ':omz:update' mode disabled
+
+# Avoid use-omz running `scutil` to compute these.
+SHORT_HOST=${HOST%%.*}
+ZSH_COMPDUMP="$HOME/.zcompdump"
+
+# Only source antidote when the static plugin files require regeneration.
+#
+# When antidote is not loaded, use-omz looks for $ZSH without a subprocess.
 if [[ ! -f ~/.zsh_plugins.zsh || ~/.zsh_plugins.txt -nt ~/.zsh_plugins.zsh ]]; then
-  source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
-
-  antidote bundle < ~/.zsh_plugins.txt > ~/.zsh_plugins.zsh
+  source ~/.antidote/antidote.zsh && antidote bundle < ~/.zsh_plugins.txt > ~/.zsh_plugins.zsh
 fi
 
 zsource ~/.zsh_plugins.zsh
 
-# GPG agent — local replacement for ohmyzsh/ohmyzsh path:plugins/gpg-agent.
-# The OMZ version runs `gpgconf --list-options gpg-agent` on every shell start (~45ms).
-# Our version skips that subprocess since enable-ssh-support is not enabled.
+## Completion. 
+
+# This runs after plugins so that it observers fpath entries. It replays 
+# compdef calls that use-omz queues. 
+#
+# Without this, use-omz runs a slower compinit before the first prompt (~20ms).
+
+autoload -Uz compinit
+
+compinit -C -d "$ZSH_COMPDUMP"
+
+# GPG agent. Local replacement for ohmyzsh/ohmyzsh path:plugins/gpg-agent.
+#
+# OMZ runs `gpgconf --list-options gpg-agent` on every shell (~45ms).
+#
+# This version skips the subprocess since enable-ssh-support is not enabled.
 zsource $HOME/.dotfiles/zsh/gpg-agent.zsh
-
-## FZF ctrl+r (cached)
-
-FZF_CACHE="$HOME/.fzf-init.zsh"
-
-if [[ ! -f "$FZF_CACHE" ]]; then
-  fzf --zsh > "$FZF_CACHE"
-fi
-
-zsource "$FZF_CACHE"
 
 ## Text Editor
 
@@ -90,49 +92,9 @@ zsource $HOME/.dotfiles/zsh/aliases
 
 ## Tooling
 
-# FNM - Fast Node Manager - (https://github.com/Schniz/fnm)
-
-FNM_PATH="$HOME/.fnm"
-
-if [ -d "$FNM_PATH" ]; then
-  export PATH="$HOME/.fnm:$PATH"
-
-  eval "`fnm env`"
-fi
-
-# Run this once, then comment out
-# fnm completions --shell=zsh > ~/.config/zsh/completions/_fnm
-
-fpath+=~/.config/zsh/completions/_fnm
-
-autoload -U add-zsh-hook
-
-# place default node version under $HOME/.node-version
-load-nvmrc() {
-  DEFAULT_NODE_VERSION="22"
-
-  if [[ -f .nvmrc && -r .nvmrc ]] || [[ -f .node-version && -r .node-version ]]; then
-    fnm use --silent-if-unchanged
-  else
-    fnm use $DEFAULT_NODE_VERSION --silent-if-unchanged
-  fi
-}
-
-add-zsh-hook chpwd load-nvmrc
-
-# Only run load-nvmrc at startup if we're actually in a project directory;
-# otherwise the chpwd hook will handle it on first cd.
-if [[ -f .nvmrc || -f .node-version ]]; then
-  load-nvmrc
-fi
-
 # Python
 
 export PATH=$PATH:$HOME/.local/bin
-
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
 
 # Android Studio
 
@@ -148,49 +110,44 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# Rustup
-
-. "$HOME/.cargo/env"
-
 # Go
 
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$HOME/.local/bin:$PATH
 
-# Yarn Switch
-# source "~/.yarn/switch/env"
+# pnpm
 
-# pyenv
+if [[ $OSTYPE == darwin* ]]; then
+  export PNPM_HOME="$HOME/Library/pnpm"
+else
+  export PNPM_HOME="$HOME/.local/share/pnpm"
+fi
+
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# mise (https://mise.jdx.dev)
 #
-# Initial setup:
+# Handles command line tools installation.
 #
-# ln -sf "$PYENV_ROOT/shims/python"  ~/.local/bin/python
-# ln -sf "$PYENV_ROOT/shims/pip"     ~/.local/bin/pip
-# ln -sf "$PYENV_ROOT/shims/python3" ~/.local/bin/python3
-# ln -sf "$PYENV_ROOT/shims/pip3"    ~/.local/bin/pip3
+# Configuration is located at: config/mise/config.toml
+(( $+commands[mise] )) && eval "$(mise activate zsh)"
 
-export PYENV_ROOT="$HOME/.pyenv"
+## FZF ctrl+r.
 
-pyenv() {
-  unset -f pyenv
+FZF_CACHE="$HOME/.fzf-init.zsh"
 
-  eval "$(command pyenv init --path)"
-  eval "$(command pyenv init -)"
+if [[ ! -f "$FZF_CACHE" ]]; then
+  fzf --zsh > "$FZF_CACHE"
+fi
 
-  pyenv "$@"
-}
-
-# Ruby
-
-eval "$(rbenv init - --no-rehash zsh)"
-
-# NX
-
-export NX_TUI=false
+zsource "$FZF_CACHE"
 
 # Secrets
 
-source ~/.secrets
+[[ -f ~/.secrets ]] && source ~/.secrets
 
 # End Profiling
 
@@ -201,12 +158,3 @@ if [ $PROFILING_MODE -ne 0 ]; then
 
     echo "Shell init time: $((zsh_end_time - zsh_start_time)) ms"
 fi
-
-# pnpm
-
-export PNPM_HOME="/Users/luke/Library/pnpm"
-
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac

@@ -1,0 +1,47 @@
+# Machine setup for macOS and Linux.
+
+[settings]
+idiomatic_version_file_enable_tools = ["node", "pnpm", "python", "ruby", "rust"]
+
+go.set_gobin = false
+
+[tools]
+# Utilities.
+cmake = "latest"
+fzf = "latest"
+neovim = "latest"
+ripgrep = "latest"
+zellij = "latest"
+
+# Language runtimes.
+bun = "latest"
+go = "latest"
+node = "22"
+pnpm = "latest"
+python = "3.11.14"
+ruby = "4.0"
+rust = "stable"
+
+[bootstrap.packages]
+zsh = "latest"
+gnupg = "latest"
+"apt:build-essential" = { os = "linux" }
+"brew:coreutils" = { os = "macos" }
+"brew-cask:gpg-suite" = { os = "macos" }
+"brew-cask:keybase" = { os = "macos" }
+"brew-cask:gcloud-cli" = { os = "macos" }
+
+[bootstrap.repos]
+"~/.antidote" = { url = "https://github.com/mattmc3/antidote.git", depth = 1 }
+
+[bootstrap.hooks.post-packages]
+description = "Make zsh the login shell"
+run = 'case "$SHELL" in */zsh) ;; *) sudo chsh -s "$(command -v zsh)" "$(id -un)" ;; esac'
+
+[dotfiles]
+"~/.config" = { source = "~/.dotfiles/config", mode = "symlink-each" }
+"~/.zshrc" = "~/.dotfiles/zshrc"
+"~/.zlogin" = "~/.dotfiles/zlogin"
+"~/.zsh_plugins.txt" = "~/.dotfiles/zsh_plugins.txt"
+"~/.gemrc" = "~/.dotfiles/gemrc"
+"~/.irbrc" = "~/.dotfiles/irbrc"

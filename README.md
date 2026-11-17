@@ -2,32 +2,32 @@
 
 ## Installation
 
-Clone this repo
+Clone this repo to `~/.dotfiles` and run the installer. It works for both macOS and Debian/Ubuntu.
 
-    git clone https://github.com/lbarratt/dotfiles.git ~/.dotfiles && cd ~/.dotfiles
+    git clone https://github.com/lbarratt/dotfiles.git ~/.dotfiles && ~/.dotfiles/install.sh
 
-Install the Homebrew bundle
+`install.sh` will install [mise](https://mise.jdx.dev) if it is missing and runs `mise bootstrap`. This applies [config/mise/config.toml](config/mise/config.toml):
 
-    brew tap Homebrew/bundle && brew bundle
+- System packages, with apt on Linux and Homebrew formulae and casks on macOS
+- Command-line tools
+- Language runtimes
+- [Antidote](https://antidote.sh)
+- Symlinks from `~` and `~/.config`
+- zsh
 
-Symlink the dotfiles
+## Commands
 
-    git submodule init && git submodule update --recursive && rake install
+Run `install.sh` after any changes. This is idempotent:
 
-Setup Antibody
+    ./install.sh --dry-run
+    ./install.sh --yes
+    ./install.sh --force-dotfiles
 
-    antidote bundle <~/.zsh_plugins.txt >~/.zsh_plugins.zsh
+After the first run, configuration is managed by mise:
 
-Install TPM
+    mise bootstrap status
+    mise upgrade
 
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/scripts/install_plugins.sh
-
-Install Alacritty theme
-
-    curl -LO --output-dir ~/.dotfiles/config/alacritty https://github.com/catppuccin/alacritty/raw/main/catppuccin-mocha.toml
-
-Install virtualenv
-
-    pip3 install virtualenv
+## Manual steps
 
 Install [Meslo Nerd Font](https://github.com/ryanoasis/nerd-fonts/tree/master/patched-fonts/Meslo)
