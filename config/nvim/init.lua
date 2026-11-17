@@ -867,6 +867,61 @@ vim.lsp.config("gopls", {
   },
 })
 
+-- terraform configuration
+vim.lsp.config("terraformls", {
+  filetypes = {
+    "terraform",
+    "terraform-vars",
+    "hcl"
+  },
+})
+
+vim.lsp.enable("terraformls")
+
+-- atmos configuration
+vim.lsp.config("atmos", {
+  capabilities = capabilities,
+  on_attach = on_attach,
+
+  cmd = function(dispatchers, config)
+    return vim.lsp.rpc.start(
+      {
+        "atmos",
+        "lsp",
+        "start",
+      },
+      dispatchers,
+      {
+        cwd = config.root_dir,
+      }
+    )
+  end,
+
+  filetypes = { "yaml" },
+
+  -- Atmos publishes `"diagnostics": null` for clean files.
+  handlers = {
+    ["textDocument/publishDiagnostics"] = function(err, result, ctx)
+      if result and result.diagnostics == vim.NIL then
+        result.diagnostics = {}
+      end
+
+      return vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx)
+    end,
+  },
+
+  -- Only attach to YAML inside an Atmos project, not every YAML file.
+  root_dir = function(bufnr, on_dir)
+    local root_dir = vim.fs.root(bufnr, { "atmos.yaml" })
+
+    if root_dir then
+      on_dir(root_dir)
+    end
+  end,
+})
+
+vim.lsp.enable("atmos")
+
 -- starpls configuration
 vim.api.nvim_create_autocmd("FileType", {
   pattern = {
