@@ -12,10 +12,6 @@ alias l='gls -pla --color=auto --group-directories-first'
 # Editor
 alias vim='nvim'
 
-# Heroku typos
-alias herkou='heroku'
-alias gerkou='heroku'
-
 # git
 alias gut='git'
 alias gad='git add .'
@@ -35,10 +31,6 @@ alias gpr='git pull --rebase'
 alias grc='git rebase --continue'
 alias gds='git diff --staged'
 
-# Apache logs
-alias a2alog='tail -f /var/log/apache2/access_log'
-alias a2elog='tail -f /var/log/apache2/error_log'
-
 # Ctags
 alias ctags='`brew --prefix`/bin/ctags'
 
@@ -48,25 +40,3 @@ alias dotfiles='nvim ~/.dotfiles'
 # Vim
 alias v='nvim'
 alias v.='nvim .'
-
-# Ruby
-alias be='bundle exec'
-
-# Vault Helpers
-function vlt {
-     list=$(vault list secret/$1 2<&1)
-
-     if [ $? -ne 0 ]; then
-
-         if [ -n "$2" ]; then
-             vault read -field=$2 secret/$1
-         else
-             vault read secret/$1
-         fi
-     else
-         echo "$list"
-     fi
- }
-
-# NX+Yarn
-alias nx='yarn run -T nx'
