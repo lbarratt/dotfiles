@@ -36,7 +36,7 @@ gnupg = "latest"
 
 [bootstrap.hooks.post-packages]
 description = "Make zsh the login shell"
-run = 'case "$SHELL" in */zsh) ;; *) sudo chsh -s "$(command -v zsh)" "$(id -un)" ;; esac'
+run = 'case "$SHELL" in */zsh) ;; *) $(command -v sudo) chsh -s "$(command -v zsh)" "$(id -un)" ;; esac'
 
 [dotfiles]
 "~/.config" = { source = "~/.dotfiles/config", mode = "symlink-each" }
