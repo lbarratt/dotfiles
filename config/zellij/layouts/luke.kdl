@@ -1,0 +1,9 @@
+layout {
+    // 1. The main terminal window (flexible size)
+    pane
+
+    // 2. The tab/status bar at the bottom (fixed size)
+    pane size=1 borderless=true {
+        plugin location="zellij:compact-bar"
+    }
+}
