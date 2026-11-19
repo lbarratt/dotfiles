@@ -29,6 +29,9 @@ alias gpr='git pull --rebase'
 alias grc='git rebase --continue'
 alias gds='git diff --staged'
 
+# lazygit
+alias lg='lazygit'
+
 # Ctags
 alias ctags='`brew --prefix`/bin/ctags'
 
