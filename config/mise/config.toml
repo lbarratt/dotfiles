@@ -9,6 +9,7 @@ go.set_gobin = false
 # Utilities.
 cmake = "latest"
 fzf = "latest"
+lazygit = "latest"
 neovim = "latest"
 ripgrep = "latest"
 zellij = "latest"
